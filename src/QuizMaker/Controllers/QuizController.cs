@@ -540,12 +540,15 @@ namespace QuizMaker.Controllers
             Guid sessionId,
             QuizViewModel quiz,
             List<SessionAnswer> sessionAnswers,
-            List<SessionAnswerViewModel> answers, 
+            List<SessionAnswerViewModel> questionAnswers, 
             int lastChronologicalOrder)
         {
             return Task.Run(() =>
             {
-                foreach (var answer in answers)
+                var correctAnswers = questionAnswers.Select(answer => answer.CorrectAnswer).ToList();
+
+                // Check for incorrectness
+                foreach (var answer in questionAnswers)
                 {
                     var sessionAnswer = new SessionAnswer()
                     {
@@ -557,24 +560,18 @@ namespace QuizMaker.Controllers
 
                     sessionAnswers.Add(sessionAnswer);
 
-                    if (answer == null || string.IsNullOrWhiteSpace(answer.CorrectAnswer) || string.IsNullOrWhiteSpace(answer.UserAnswer) ||
-                        answer.CorrectAnswer.ToLower() != answer.UserAnswer.ToLower().Trim())
+                    if (string.IsNullOrWhiteSpace(answer.UserAnswer) ||
+                        (quiz.AnswersOrderImportant && answer.CorrectAnswer.ToLower() != answer.UserAnswer.ToLower().Trim()) ||
+                        (correctAnswers.Exists(a => a.ToLower() == answer.UserAnswer.ToLower().Trim())))
                     {
-                        quiz.IncorrectAnswers.Add(answer.AnswerId);
-                        sessionAnswer.IsCorrect = false;
-                        return false;
-                    }
-                    else
-                    {
-                        sessionAnswer.IsCorrect = true;
-                        return true;
+                        return MarkAnswerAsIncorrect(quiz, answer, sessionAnswer);
                     }
                 }
 
-                return false;
+                return true;
             });
         }
-        
+
         private static void UpdateChoices(bool isAdd, List<QuizChoice> quizChoices, Quiz quizzy)
         {
             if (!isAdd)
@@ -597,6 +594,12 @@ namespace QuizMaker.Controllers
                     }
                 }
             }
+        }
+
+        private static bool MarkAnswerAsIncorrect(QuizViewModel quiz, SessionAnswerViewModel answer, SessionAnswer sessionAnswer)
+        {
+            quiz.IncorrectAnswers.Add(answer.AnswerId);
+            return sessionAnswer.IsCorrect = false;
         }
     }
 }
