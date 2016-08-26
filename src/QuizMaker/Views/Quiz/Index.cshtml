@@ -42,9 +42,11 @@
                 <th>
                     <a style="float: left; margin-right: 10px" asp-controller="Quiz" asp-action="Edit" asp-route-id="@quiz.QuizId"><span class="glyphicon glyphicon-pencil"></span></a>
 
-                    <form style="float: left" asp-controller="Quiz" asp-action="Delete" asp-route-id="@quiz.QuizId" method="post">
+                    <form style="float: left; margin-right: 10px" asp-controller="Quiz" asp-action="Delete" asp-route-id="@quiz.QuizId" method="post">
                         <a class="delete-button" href="#"><span class="glyphicon glyphicon-trash"></span></a>
                     </form>
+
+                    <a title="Take Quiz" style="float: left" asp-controller="Quiz" asp-action="GenerateSession" asp-route-id="@quiz.QuizId"><span class="glyphicon glyphicon-book"></span></a>
                 </th>
             </tr>
         }
