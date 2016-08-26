@@ -1,0 +1,17 @@
+﻿Title:Comparative Form 2
+Code:COMPARATIVE_FORM_2
+QuizGroup:COMPARATIVE_FORM
+Instructions:Determine the comparative form
+QuizType:1
+Prerequisites:
+Questions:
+brave|braver
+small|smaller
+dark|darker
+crooked|more crooked
+damaged|more damaged
+afraid|more afraid
+long|longer
+hard|harder
+good|better
+bad|worse

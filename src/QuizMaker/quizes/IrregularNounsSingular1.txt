@@ -1,0 +1,16 @@
+﻿Title:Irregular Nouns Singular 1
+Code:IRREGULAR_NOUNS_SINGULAR_1
+QuizGroup:IRREGULAR_NOUNS
+Instructions:Determine the singular form
+QuizType:1
+Prerequisites:
+Questions:
+addenda|addendum
+algae|alga
+alumnae|alumna
+alumni|alumnus
+analyses|analysis
+antennas|antenna
+apparatuses|apparatus
+appendices|appendix
+axes|axis

@@ -1,0 +1,145 @@
+﻿@model QuizEditViewModel
+@{
+    Layout = "_LayoutContentPage";
+    ViewBag.Title = Model.QuizId != Guid.Empty ? $"{(Model.ReadOnly ? "View" : "Edit")} \"{Model.Title}\"" : "Add New Quiz";
+}
+<form asp-controller="Quiz" asp-action="@(Model.QuizId != Guid.Empty ? "Edit" : "Add")" asp-route-groupId="@Model.QuizGroupId" 
+      asp-route-questionCount="@Model.Questions.Count" method="post" role="form">
+    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+            <span class="sr-only">Error:</span>
+            @ViewBag.ErrorMessage
+        </div>
+    }
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <input type="hidden" asp-for="@Model.QuizId" />
+
+    <div class="form-group">
+        <label asp-for="@Model.Code">Code:</label>
+        @if (Model.ReadOnly)
+        {
+            <div>@Model.Code</div>
+        }
+        else
+        {
+            <input asp-for="@Model.Code" class="form-control" />
+            <span asp-validation-for="@Model.Code" class="text-danger"></span>
+        }
+    </div>
+    <div class="form-group">
+        <label asp-for="@Model.Title">Title:</label>
+        @if (Model.ReadOnly)
+        {
+            <div>@Model.Title</div>
+        }
+        else
+        {
+            <input asp-for="@Model.Title" class="form-control" />
+            <span asp-validation-for="@Model.Title" class="text-danger"></span>
+        }
+    </div>
+    <div class="form-group">
+        <label asp-for="@Model.Instructions">Instructions:</label>
+        @if (Model.ReadOnly)
+        {
+            <div>@Model.Instructions</div>
+        }
+        else
+        {
+            <input asp-for="@Model.Instructions" class="form-control" />
+            <span asp-validation-for="@Model.Instructions" class="text-danger"></span>
+        }
+    </div>
+    <div class="form-group">
+        <label asp-for="@Model.QuizGroupId">Group:</label>
+        @if (Model.ReadOnly)
+        {
+            <div>@Model.QuizGroupName</div>
+        }
+        else
+        {
+            <select class="form-control" asp-for="@Model.QuizGroupId"
+                  asp-items="@(new SelectList(Model.Groups,"QuizGroupId","Name"))">
+                <option>Please select one</option>
+            </select>
+            <span asp-validation-for="@Model.QuizGroupId" class="text-danger"></span>
+        }
+    </div>
+    <div class="form-group">
+        <label asp-for="@Model.QuizType">Type:</label>
+        @if (Model.ReadOnly)
+        {
+            <div>@Model.QuizType.ToString()</div>
+        }
+        else
+        {
+            <select class="form-control" asp-for="@Model.QuizType"
+                    asp-items="@Model.Types">
+            </select>
+            <span asp-validation-for="@Model.QuizType" class="text-danger"></span>
+        }
+    </div>
+    <div class="form-group">
+        <label asp-for="@Model.QuizChoices">Quiz Choices:</label>
+        @if (Model.ReadOnly)
+        {
+            <div>@Model.QuizChoices</div>
+        }
+        else
+        {
+            <input asp-for="@Model.QuizChoices" class="form-control" />
+            <span asp-validation-for="@Model.QuizChoices" class="text-danger"></span>
+        }
+    </div>
+
+    @for (var i = 0; i < Model.Questions.Count; i++)
+    {
+        <div class="form-group">
+            <input type="hidden" asp-for="@Model.Questions[i].QuestionId" />
+            <label asp-for="@Model.Questions[i].QuestionText">Question @(i + 1):</label>
+            @if (Model.ReadOnly)
+            {
+                <div>@Model.Questions[i].QuestionText</div>
+            }
+            else
+            {
+                <input asp-for="@Model.Questions[i].QuestionText" class="form-control"/>
+                <span asp-validation-for="@Model.Questions[i].QuestionText" class="text-danger"></span>
+            }
+        </div>
+        <div class="form-group">
+            <label asp-for="@Model.Questions[i].AnswerData">Answer @(i + 1):</label>
+            @if (Model.ReadOnly)
+            {
+                <div>@Model.Questions[i].AnswerData</div>
+            }
+            else
+            {
+                <input asp-for="@Model.Questions[i].AnswerData" class="form-control"  />
+                <span asp-validation-for="@Model.Questions[i].AnswerData" class="text-danger"></span>
+            }
+        </div>
+    }
+    @if (Model.ReadOnly)
+    {
+        if (!string.IsNullOrWhiteSpace(ViewBag.ReturnUrl))
+        {
+            <a href="@ViewBag.ReturnUrl" class="btn btn-primary">Back</a>
+        }
+        else
+        {
+            <a asp-controller="Quiz" asp-action="Index" class="btn btn-primary">Back</a>
+        }
+    }
+    else
+    {
+
+        <button type="submit" class="btn btn-default">Submit</button>
+    }
+</form>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

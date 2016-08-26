@@ -1,0 +1,57 @@
+﻿@model QuizGroupListViewModel
+@{
+    Layout = "_LayoutContentPage";
+    ViewBag.Title = "Quiz Groups";
+}
+
+
+<a asp-controller="QuizGroup" asp-action="Add" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span></a>
+<table class="table table-responsive table-bordered list-table">
+    <thead>
+        <tr>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var group in Model.Groups)
+        {
+            <tr>
+                <td><a asp-controller="QuizGroup" asp-action="Detail" asp-route-id="@group.QuizGroupId">@group.Code</a></td>
+                <td>@group.Name</td>
+                <td>@group.Description</td>
+                <td>@group.QuizCategory.Name</td>
+                <th>
+                    <a style="float: left; margin-right: 10px" asp-controller="QuizGroup" asp-action="Edit" asp-route-id="@group.QuizGroupId"><span class="glyphicon glyphicon-pencil"></span></a>
+
+                    <form style="float: left; margin-right: 10px" asp-controller="QuizGroup" asp-action="Delete" method="post">
+                        <input type="hidden" name="groupId" value="@group.QuizGroupId" />
+                        <a class="delete-button" href="#"><span class="glyphicon glyphicon-trash"></span></a>
+                    </form>
+
+                    <a title="Add Question" style="float: left" asp-controller="Quiz" asp-action="Add" asp-route-groupId="@group.QuizGroupId" asp-route-questionCount="10"><span class="glyphicon glyphicon-plus"></span></a>
+                </th>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+
+            $('.delete-button').click(function (e) {
+                var self = $(this);
+                var form = self.parent('form');
+                if (confirm("Are you sure you want to delete?")) {
+                    form.submit();
+                }
+
+                e.preventDefault();
+            });
+        });
+    </script>
+}

@@ -1,0 +1,13 @@
+﻿@{ 
+    Layout = "_Layout";
+}
+<div class="panel panel-default content-wrapper">
+    <div class="panel-body">
+        <h1>@ViewBag.Title</h1>
+        @RenderBody()
+    </div>
+</div>
+
+@section scripts {
+    @RenderSection("scripts", false)
+}

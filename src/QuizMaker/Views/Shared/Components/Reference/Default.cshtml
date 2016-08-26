@@ -1,0 +1,13 @@
+﻿@model FormFieldViewComponentViewModel
+<div class="form-group">
+    <label asp-for="@Model.Property">@Model.Label:</label>
+    @if (Model.IsReadOnly)
+    {
+        <div>@Model.Value</div>
+    }
+    else
+    {
+        <input asp-for="@Model.Property" class="form-control" />
+        <span asp-validation-for="@Model.Property" class="text-danger"></span>
+    }
+</div>

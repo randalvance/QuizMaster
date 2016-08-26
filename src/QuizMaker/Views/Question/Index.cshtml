@@ -1,0 +1,17 @@
+﻿@model QuestionManagePageViewModel
+@{
+    ViewBag.Title = "Manage Question";
+}
+<div class="manage-question-wrapper">
+    <h1>Add Quiz</h1>
+    <h3><a asp-controller="Question" asp-action="List">Show All Quizes</a></h3>
+    <form asp-controller="Question" asp-action="Index" method="post">
+        <div class="form-group">
+            <label asp-for="@Model.Content">Enter Question Metadata</label>
+            <textarea asp-for="@Model.Content" class="form-control question-content" rows="100"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-default">Submit</button>
+    </form>
+
+</div>

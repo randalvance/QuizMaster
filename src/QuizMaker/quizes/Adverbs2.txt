@@ -1,0 +1,17 @@
+﻿Title:Adverbs 2
+Code:ADVERBS_2
+QuizGroup:ADVERBS
+Instructions:Determine the ADVERB
+QuizType:1
+Prerequisites:
+Questions:
+With sneakers on, she moved quickly among the patients.|quickly
+The flowers were beautifully arranged by the gardener.|beautifully
+He literally wrecked his mother's car.|literally
+She simply ignored me.|simply
+I absolutely refuse to attend any more faculty meetings.|absolutely
+They heartily endorsed the new restaurant.|heartily
+She cheerfully washed the dishes.|cheerfully
+He expertly answered their questions.|expertly
+He randomly thought of a solution.|randomly
+John delicately iron the clothes.|delicately

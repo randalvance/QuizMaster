@@ -1,0 +1,56 @@
+﻿@model QuizCategoryEditViewModel
+@{
+    Layout = "_LayoutContentPage";
+    ViewBag.Title = Model.QuizCategoryId != Guid.Empty ? $"{(Model.ReadOnly ? "View" : "Edit")} \"{Model.Name}\"" : "Add New Category";
+}
+<form asp-controller="QuizCategory" asp-action="@(Model.QuizCategoryId != Guid.Empty ? "Edit" : "Add")" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <input type="hidden" asp-for="@Model.QuizCategoryId" />
+    <div class="form-group">
+        <label asp-for="@Model.Code">Code:</label>
+        @if (Model.ReadOnly)
+        {
+            <div>@Model.Code</div>
+        }
+        else
+        {
+            <input asp-for="@Model.Code" class="form-control" />
+            <span asp-validation-for="@Model.Code" class="text-danger"></span>
+        }
+    </div>
+    <div class="form-group">
+        <label asp-for="@Model.Name">Name:</label>
+        @if (Model.ReadOnly)
+        {
+            <div>@Model.Name</div>
+        }
+        else
+        {
+            <input asp-for="@Model.Name" class="form-control" />
+            <span asp-validation-for="@Model.Name" class="text-danger"></span>
+        }
+    </div>
+    <div class="form-group">
+        <label asp-for="@Model.Description">Description:</label>
+        @if (Model.ReadOnly)
+        {
+            <div>@Model.Description</div>
+        }
+        else
+        {
+            <input asp-for="@Model.Description" class="form-control" />
+        }
+    </div>
+    @if (Model.ReadOnly)
+    {
+        <a asp-controller="QuizCategory" asp-action="Index" class="btn btn-primary">Back</a>
+    }
+    else
+    {
+        <button type="submit" class="btn btn-default">Submit</button>
+    }
+</form>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

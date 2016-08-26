@@ -1,0 +1,52 @@
+﻿@model ShowAnswersViewModel
+@{
+    ViewBag.Title = "Quiz Index";
+}
+<div class="panel panel-default content-wrapper">
+    <div class="panel-body">
+        <h3>Answers</h3>
+        @foreach (var quiz in Model.QuizGroups)
+        {
+            <div>
+                <h4>@quiz.QuizTitle</h4>
+                <p>@quiz.QuizIndustructions</p>
+                <ol>
+                    @{ 
+                        var questions = quiz.Answers.GroupBy(a => a.QuestionText).Select(g => new { QuestionText = g.Key, Answers = g.ToList() });
+                    }
+                    @foreach (var question in questions)
+                    {
+                        <li><b>Q: </b>@question.QuestionText<br />
+                            <ul>
+                                @foreach (var answer in question.Answers)
+                                {
+                                    <li>
+                                    @if (string.IsNullOrWhiteSpace(answer.UserAnswer))
+                                    {
+                                        <span class="incorrect-label">NO ANSWER</span>
+                                    }
+                                    else if (answer.CorrectAnswer.ToLower() == answer.UserAnswer.ToLower().Trim())
+                                    {
+                                        <span class="correct-label">@answer.CorrectAnswer</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="incorrect-label"><strike>@answer.UserAnswer</strike></span>
+
+                                        <span class="correct-label">@answer.CorrectAnswer</span>
+                                    }
+                                    </li>
+                                }
+                            </ul>
+                        </li>
+                    }
+                </ol>
+            </div>
+        }
+
+        @if (!Model.HideNext)
+        {
+        <a asp-controller="Quiz" asp-action="GenerateSession" class="btn btn-success">Next Quiz Please</a>
+        }
+    </div>
+</div>

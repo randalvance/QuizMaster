@@ -1,0 +1,17 @@
+﻿Title:Determine The Subject 1
+Code:DETERMINE_THE_SUBJECT_1
+QuizGroup:SUBJECTS
+Instructions:Determine the SUBJECT in these sentences.
+QuizType:1
+Prerequisites:
+Questions:
+He threw the ball.|He
+The cat jumped off the building.|cat
+The man died of laughing.|man
+The cars are exploding.|cars
+The maid is very ugly.|maid
+The mayor is corrupt.|mayor
+The phone is ringing.|phone
+John is gay.|John
+Ronald is slicing the tomatoes.|Ronald
+The duck has only 1 wing.|duck

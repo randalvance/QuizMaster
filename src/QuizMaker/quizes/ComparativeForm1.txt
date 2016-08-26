@@ -1,0 +1,17 @@
+﻿Title:Comparative Form 1
+Code:COMPARATIVE_FORM_1
+QuizGroup:COMPARATIVE_FORM
+Instructions:Determine the comparative form
+QuizType:1
+Prerequisites:
+Questions:
+hot|hotter
+cold|colder
+pretty|prettier
+attractive|more attractive
+beautiful|more beautiful
+clean|cleaner
+strong|stronger
+fancy|fancier
+fast|faster
+slow|slower

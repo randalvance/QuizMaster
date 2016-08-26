@@ -1,0 +1,17 @@
+﻿Title:Using Is and Are 2
+Code:IS_AND_ARE_2
+QuizGroup:IS_AND_ARE
+Instructions:Fill the blanks with "is" or "are"
+QuizType:1
+Prerequisites:
+Questions:
+The baby ___ crying like a baby.|is
+The boat ___ sinking.|is
+The garden workers ____ demanding for higher pay.|are
+A group of tigers ____ approaching.|is
+A battalion of soliders ____ marching.|is
+The ballerina ___ dancing.|is
+The glass ____ fragile.|is
+The bird's feathers ____ detaching from the bird's body.|are
+The pool ___ dirty.|is
+The computer screen ____ blurry.|is

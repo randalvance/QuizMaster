@@ -1,0 +1,94 @@
+﻿@model QuizGroupEditViewModel
+@{
+    Layout = "_LayoutContentPage";
+    ViewBag.Title = Model.QuizGroupId != Guid.Empty ? $"{(Model.ReadOnly ? "View" : "Edit")} \"{Model.Name}\"" : "Add New Group";
+}
+<form asp-controller="QuizGroup" asp-action="@(Model.QuizGroupId != Guid.Empty ? "Edit" : "Add")" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <input type="hidden" asp-for="@Model.QuizGroupId" />
+    <div class="form-group">
+        <label asp-for="@Model.Code">Code:</label>
+        @if (Model.ReadOnly)
+        {
+            <div>@Model.Code</div>
+        }
+        else
+        {
+            <input asp-for="@Model.Code" class="form-control" />
+            <span asp-validation-for="@Model.Code" class="text-danger"></span>
+        }
+    </div>
+    <div class="form-group">
+        <label asp-for="@Model.Name">Name:</label>
+        @if (Model.ReadOnly)
+        {
+            <div>@Model.Name</div>
+        }
+        else
+        {
+            <input asp-for="@Model.Name" class="form-control" />
+            <span asp-validation-for="@Model.Name" class="text-danger"></span>
+        }
+    </div>
+    <div class="form-group">
+        <label asp-for="@Model.Description">Description:</label>
+        @if (Model.ReadOnly)
+        {
+            <div>@Model.Description</div>
+        }
+        else
+        {
+            <input asp-for="@Model.Description" class="form-control" />
+        }
+    </div>
+    <div class="form-group">
+        <label asp-for="@Model.QuizCategoryId">Category:</label>
+        @if (Model.ReadOnly)
+        {
+            <div>@Model.QuizCategoryName</div>
+        }
+        else
+        {
+            <select class="form-control" asp-for="@Model.QuizCategoryId"
+                  asp-items="@(new SelectList(Model.Categories,"QuizCategoryId","Name"))">
+                <option>Please select one</option>
+            </select>
+            <span asp-validation-for="@Model.QuizCategoryId" class="text-danger"></span>
+        }
+    </div>
+    @if (Model.ReadOnly)
+    {
+        <a asp-controller="QuizGroup" asp-action="Index" class="btn btn-primary">Back</a>
+    }
+    else
+    {
+        <button type="submit" class="btn btn-default">Submit</button>
+    }
+</form>
+
+@if(Model.ReadOnly)
+{
+    <h2>Quizes</h2>
+    <table class="table table-responsive">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Title</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var quiz in Model.Quizes)
+            {
+                <tr>
+                    <td><a asp-controller="Quiz" , asp-action="Detail" asp-route-id="@quiz.QuizId" asp-route-returnUrl="@Context.Request.Path">@quiz.Code</a></td>
+                    <td>@quiz.Title</td>
+                </tr>
+
+            }
+        </tbody>
+    </table>
+}
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

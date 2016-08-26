@@ -1,0 +1,38 @@
+﻿@model SessionListViewModel
+@{
+    ViewBag.Title = "Sessions";
+}
+
+<div class="panel panel-default content-wrapper">
+    <div class="panel-body">
+        <table class="table table-responsive table-bordered">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Quiz Title</th>
+                    <th>Session Link</th>
+                    <th>Status</th>
+                    <th>Date Taken</th>
+                    <th>Date Completed</th>
+                    <th>Correct Item Count</th>
+                    <th>Quiz Item Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var session in Model.Sessions)
+                {
+                <tr class="@(session.SessionStatus == SessionStatus.Done.ToString() ? "session-list-row-inactive" : "session-list-row-active")">
+                    <td>@session.UserName</td>
+                    <td><a asp-controller="Quiz" asp-action="ShowAnswers" asp-route-sessionId="@session.SessionId" asp-route-hideNext="true" asp-route-firstAnswers="true">@session.QuizTitle</a></td>
+                    <td><a asp-controller="Quiz" asp-action="TakeQuiz" asp-route-sessionId="@session.SessionId" asp-route-hideNext="true">Link</a></td>
+                    <td>@session.SessionStatus</td>
+                    <td>@session.DateTaken</td>
+                    <td>@session.DateCompleted</td>
+                    <td>@session.CorrectAnswerCount</td>
+                    <td>@session.QuizItemCount</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

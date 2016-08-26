@@ -1,0 +1,11 @@
+﻿@model RecommendedQuizViewModel
+@{
+    ViewBag.Title = "Quiz Index";
+}
+<div class="panel panel-default content-wrapper">
+    <div class="panel-body">
+        <h2>Recommended Quiz</h2>
+        <h3>@Model.Title</h3>
+        <a class="btn btn-success" asp-action="GenerateSession" asp-route-id="@Model.QuizId">Start Quiz</a>
+    </div>
+</div>
