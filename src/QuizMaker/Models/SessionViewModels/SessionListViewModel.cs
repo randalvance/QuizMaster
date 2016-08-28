@@ -16,7 +16,16 @@ namespace QuizMaker.Models.SessionViewModels
         {
             get
             {
-                return Sessions.Average(x => x.GradePercentage);
+                var grades = Sessions.Select(x => x.GradePercentage).ToList();
+
+                if (grades.Count < RequiredQuizes)
+                {
+                    var sessionsToAdd = RequiredQuizes - grades.Count;
+                    var dummyScores = new double[sessionsToAdd];
+                    grades.AddRange(dummyScores);
+                }
+
+                return grades.Average();
             }
         }
         public string Remark

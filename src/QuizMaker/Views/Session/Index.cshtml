@@ -2,18 +2,30 @@
 @{
     Layout = "_LayoutContentPage";
     ViewBag.Title = "Sessions";
-    ViewBag.HeaderTitle = "Quizes Taken";
+    ViewBag.HeaderTitle = "Your Performance for Today";
 }
 
 <div class="row">
     <table class="col-md-2 result-for-the-day-table">
         <tr>
             <th class="text-right">Grade for Today</th>
-            <td class="grade @(Model.Remark == "Passed" ? "passed" : "failed")">@Model.Remark (@Model.GradeAverage.ToString("F0")%)</td>
+            <td>
+                <div id="daily-grade-container">
+
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <th class="text-right">Remark</th>
+            <td class="grade @(Model.Remark == "Passed" ? "passed" : "failed")">@Model.Remark</td>
+        </tr>
+        <tr>
+            <th class="text-right">Required Quiz for Today</th>
+            <td>@Model.RequiredQuizes</td>
         </tr>
         <tr>
             <th class="text-right">Quizes Completed</th>
-            <td>@Model.QuizesCompleted out of @Model.RequiredQuizes</td>
+            <td>@Model.QuizesCompleted</td>
         </tr>
         <tr>
             <th class="text-right">Quizes Passed</th>
@@ -26,7 +38,7 @@
     </table>
 </div>
 
-<h2>Quizes</h2>
+<h2>Quizes Taken</h2>
 <table class="table table-responsive table-bordered">
     <thead>
         <tr>
@@ -64,3 +76,10 @@
         }
     </tbody>
 </table>
+
+@section scripts {
+    <script type="text/javascript" src="~/scripts/sessionList.js"></script>
+    <script type="text/javascript">
+        SessionListUtilities.showScore(@Model.GradeAverage, '@Model.GradeAverage.ToString("F0")%');
+    </script>
+}
