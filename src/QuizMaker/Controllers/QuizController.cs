@@ -492,10 +492,10 @@ namespace QuizMaker.Controllers
 
                 foreach (var question in quiz.Questions)
                 {
-                    await CheckAnswersAsync(sessionId, quiz, sessionAnswers, 
+                    var isCorrect = await CheckAnswersAsync(sessionId, quiz, sessionAnswers, 
                         question.Answers, lastChronologicalOrder);
 
-                    quizCorrectAnswerCount += quiz.IncorrectAnswers.Any() ? 1 : 0;
+                    quizCorrectAnswerCount += isCorrect ? 1 : 0;
                 }
 
                 return quizCorrectAnswerCount;
@@ -545,7 +545,7 @@ namespace QuizMaker.Controllers
             }
         }
 
-        private static Task CheckAnswersAsync(
+        private static Task<bool> CheckAnswersAsync(
             Guid sessionId,
             QuizViewModel quiz,
             List<SessionAnswer> sessionAnswers,
@@ -555,6 +555,7 @@ namespace QuizMaker.Controllers
             return Task.Run(() =>
             {
                 var correctAnswers = questionAnswers.Select(answer => answer.CorrectAnswer).ToList();
+                var isCorrect = true;
 
                 // Check for incorrectness
                 foreach (var answer in questionAnswers)
@@ -568,14 +569,17 @@ namespace QuizMaker.Controllers
                     };
 
                     sessionAnswers.Add(sessionAnswer);
-
+                    
                     if (string.IsNullOrWhiteSpace(answer.UserAnswer) ||
                         (quiz.AnswersOrderImportant && answer.CorrectAnswer.ToLower() != answer.UserAnswer.ToLower().Trim()) ||
-                        (correctAnswers.Exists(a => a.ToLower() == answer.UserAnswer.ToLower().Trim())))
+                        (!correctAnswers.Exists(a => a.ToLower() == answer.UserAnswer.ToLower().Trim())))
                     {
                         MarkAnswerAsIncorrect(quiz, answer, sessionAnswer);
+                        isCorrect = false;
                     }
                 }
+
+                return isCorrect;
             });
         }
 
