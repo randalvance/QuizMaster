@@ -25,9 +25,11 @@ namespace QuizMaker.Models.QuizViewModels
         
         public string QuizGroupName { get; set; }
 
-        public List<QuizGroup> Groups { get; set; }
-
         public bool ReadOnly { get; set; }
+
+        public string ReturnUrl { get; set; }
+
+        public List<QuizGroup> Groups { get; set; }
         
         public List<QuizEditQuestionViewModel> Questions { get; set; }
 

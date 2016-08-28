@@ -48,7 +48,7 @@ namespace QuizMaker.Controllers
             return View(viewModel);
         }
 
-        public IActionResult Add(Guid groupId, int questionCount = 10)
+        public IActionResult Add(Guid groupId, int questionCount = 10, string returnUrl = "")
         {
             var quizGroup = appDbContext.QuizGroups.Include(x => x.Quizes).SingleOrDefault(x => x.QuizGroupId == groupId);
             var quizCount = quizGroup?.Quizes.Count;
@@ -63,7 +63,8 @@ namespace QuizMaker.Controllers
                 Questions = Enumerable.Range(0, questionCount).Select(i => new QuizEditQuestionViewModel() { }).ToList(), // Hardcoded to 10 questions for now
                 Groups = appDbContext.QuizGroups.ToList(),
                 QuizGroupId = groupId,
-                QuizType = QuizType.FillInTheBlanks
+                QuizType = QuizType.FillInTheBlanks,
+                ReturnUrl = returnUrl
             };
 
             return View("Edit", viewModel);
@@ -97,10 +98,9 @@ namespace QuizMaker.Controllers
                 Questions = quiz.QuizQuestions.Select(x => 
                     new QuizEditQuestionViewModel { QuestionText = x.Question.QuestionText, AnswerData = x.Question.Answers.Select(a => a.AnswerText)
                         .Aggregate((a1, a2) => a1 + ":" + a2) }).ToList(),
-                ReadOnly = true
+                ReadOnly = true,
+                ReturnUrl = returnUrl
             };
-
-            ViewBag.ReturnUrl = returnUrl;
 
             return View("Edit", viewModel);
         }
@@ -324,6 +324,10 @@ namespace QuizMaker.Controllers
                 return View("Edit", viewModel);
             }
 
+            if (!string.IsNullOrWhiteSpace(viewModel.ReturnUrl))
+            {
+                return Redirect(viewModel.ReturnUrl);
+            }
             return RedirectToAction("Index", new { addSuccess = true });
         }
 
@@ -483,10 +487,10 @@ namespace QuizMaker.Controllers
 
                 foreach (var question in quiz.Questions)
                 {
-                    bool isCorrect = await CheckAnswersAsync(sessionId, quiz, sessionAnswers, 
+                    await CheckAnswersAsync(sessionId, quiz, sessionAnswers, 
                         question.Answers, lastChronologicalOrder);
 
-                    quizCorrectAnswerCount += isCorrect ? 1 : 0;
+                    quizCorrectAnswerCount += quiz.IncorrectAnswers.Any() ? 1 : 0;
                 }
 
                 return quizCorrectAnswerCount;
@@ -536,7 +540,7 @@ namespace QuizMaker.Controllers
             }
         }
 
-        private static Task<bool> CheckAnswersAsync(
+        private static Task CheckAnswersAsync(
             Guid sessionId,
             QuizViewModel quiz,
             List<SessionAnswer> sessionAnswers,
@@ -564,11 +568,9 @@ namespace QuizMaker.Controllers
                         (quiz.AnswersOrderImportant && answer.CorrectAnswer.ToLower() != answer.UserAnswer.ToLower().Trim()) ||
                         (correctAnswers.Exists(a => a.ToLower() == answer.UserAnswer.ToLower().Trim())))
                     {
-                        return MarkAnswerAsIncorrect(quiz, answer, sessionAnswer);
+                        MarkAnswerAsIncorrect(quiz, answer, sessionAnswer);
                     }
                 }
-
-                return true;
             });
         }
 
@@ -596,10 +598,10 @@ namespace QuizMaker.Controllers
             }
         }
 
-        private static bool MarkAnswerAsIncorrect(QuizViewModel quiz, SessionAnswerViewModel answer, SessionAnswer sessionAnswer)
+        private static void MarkAnswerAsIncorrect(QuizViewModel quiz, SessionAnswerViewModel answer, SessionAnswer sessionAnswer)
         {
             quiz.IncorrectAnswers.Add(answer.AnswerId);
-            return sessionAnswer.IsCorrect = false;
+            sessionAnswer.IsCorrect = false;
         }
     }
 }

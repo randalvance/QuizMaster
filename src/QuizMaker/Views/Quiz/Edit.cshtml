@@ -4,7 +4,7 @@
     ViewBag.Title = Model.QuizId != Guid.Empty ? $"{(Model.ReadOnly ? "View" : "Edit")} \"{Model.Title}\"" : "Add New Quiz";
 }
 <form asp-controller="Quiz" asp-action="@(Model.QuizId != Guid.Empty ? "Edit" : "Add")" asp-route-groupId="@Model.QuizGroupId" 
-      asp-route-questionCount="@Model.Questions.Count" method="post" role="form">
+      asp-route-questionCount="@Model.Questions.Count" asp-route-returnUrl ="@Model.ReturnUrl" method="post" role="form">
     @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
     {
         <div class="alert alert-danger" role="alert">
@@ -124,9 +124,9 @@
     }
     @if (Model.ReadOnly)
     {
-        if (!string.IsNullOrWhiteSpace(ViewBag.ReturnUrl))
+        if (!string.IsNullOrWhiteSpace(Model.ReturnUrl))
         {
-            <a href="@ViewBag.ReturnUrl" class="btn btn-primary">Back</a>
+            <a href="@Model.ReturnUrl" class="btn btn-primary">Back</a>
         }
         else
         {

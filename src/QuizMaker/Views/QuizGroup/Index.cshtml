@@ -32,7 +32,8 @@
                         <a class="delete-button" href="#"><span class="glyphicon glyphicon-trash"></span></a>
                     </form>
 
-                    <a title="Add Question" style="float: left" asp-controller="Quiz" asp-action="Add" asp-route-groupId="@group.QuizGroupId" asp-route-questionCount="10"><span class="glyphicon glyphicon-plus"></span></a>
+                    <a title="Add Question" style="float: left" asp-controller="Quiz" asp-action="Add" asp-route-groupId="@group.QuizGroupId" asp-route-questionCount="10"
+                       asp-route-returnUrl="@Context.Request.Path"><span class="glyphicon glyphicon-plus"></span></a>
                 </th>
             </tr>
         }
