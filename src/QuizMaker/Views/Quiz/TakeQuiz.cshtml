@@ -17,97 +17,95 @@
     <input type="hidden" asp-for="@Model.CorrectAnswerCount" />
     <input type="hidden" asp-for="@Model.QuizItemCount" />
 
-    <div class="panel panel-default quiz-wrapper">
-        <div class="panel-body">
-            @if (!Model.InitialLoad)
-            {
-                <h2>Your first try score is @Model.CorrectAnswerCount/@Model.QuizItemCount or @firstTryPercentage%</h2>
-                <h2>Your current score is @Model.RetryAnswerCount/@Model.QuizItemCount or @retryPercentage%</h2>
-            }
-            @if (Model.Quizes[i].IncorrectAnswers.Any())
-            {
-                <div class="alert alert-danger" role="alert">
-                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-                    <span class="sr-only">Error:</span>
-                    The red boxes are incorrect. You can try again or take the next quiz. It will no longer affect your initial score.
-                </div>
-            }
-            else if (!Model.InitialLoad && !Model.Quizes[i].IncorrectAnswers.Any())
-            {
-                <div class="alert alert-success" role="alert">
-                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-                    <span class="sr-only">Error:</span>
-                    Congrats! You answered all correctly. You can take another quiz by clicking the button below.
-                </div>
-            }
-            @if (!Model.InitialLoad)
-            {
-                <a asp-controller="Quiz" asp-action="GenerateSession" asp-route-numQuizTaken="@Model.QuizOfTheDayNumber" asp-route-fromTaker="true" class="btn btn-default">Take Next Quiz</a>
-            }
-
-            <input type="hidden" asp-for="@Model.Quizes[i].QuizId" />
-            <input type="hidden" asp-for="@Model.Quizes[i].Title" />
-            <input type="hidden" asp-for="@Model.Quizes[i].Instructions" />
-
-            <h3>@Model.Quizes[i].Title</h3>
-            <p>@Model.Quizes[i].Instructions</p>
-            <div>
-                @for (int q = 0; q < Model.Quizes[i].Questions.Count; q++)
-            {
-                var question = Model.Quizes[i].Questions[q];
-
-                <input type="hidden" asp-for="@Model.Quizes[i].Questions[q].QuestionId" />
-                <div class="question-wrapper">
-                    <b>Question #@(q + 1)</b>
-                    <div class="question">
-                        @question.QuestionText
-                    </div>
-                    <input type="hidden" asp-for="@Model.Quizes[i].Questions[q].QuestionText" />
-                    <div class="answer">
-                        @for (int a = 0; a < question.Answers.Count; a++)
-                        {
-                            var answer = question.Answers[a];
-
-                            <div class="form-group answer-item">
-                                <label asp-for="@Model.Quizes[i].Questions[q].Answers[a].UserAnswer">Answer @(question.Answers.Count > 1 ? "#" + (a + 1) : "")</label>
-                                @if (!Model.Quizes[i].QuizChoices.Any())
-                                {
-                                <input class="form-control"
-                                       asp-is-correct="@(!Model.InitialLoad && !Model.Quizes[i].IncorrectAnswers.Contains(answer.AnswerId))"
-                                       asp-is-incorrect="@(!Model.InitialLoad && Model.Quizes[i].IncorrectAnswers.Contains(answer.AnswerId))"
-                                       asp-for="@Model.Quizes[i].Questions[q].Answers[a].UserAnswer" />
-                                }
-                                else
-                                {
-                                    <select class="form-control  
-                                            @((!Model.InitialLoad && !Model.Quizes[i].IncorrectAnswers.Contains(answer.AnswerId)) ? "correct-answer" : "") 
-                                            @((!Model.InitialLoad && Model.Quizes[i].IncorrectAnswers.Contains(answer.AnswerId) ? "incorrect-answer": ""))" 
-                                            asp-for="@Model.Quizes[i].Questions[q].Answers[a].UserAnswer"
-                                            asp-items="@Model.Quizes[i].QuizChoices">
-                                        <option></option>
-                                    </select>
-                                }
-                            </div>
-                                
-                            <input type="hidden" asp-for="@Model.Quizes[i].Questions[q].Answers[a].AnswerId" />
-                            <input type="hidden" asp-for="@Model.Quizes[i].Questions[q].Answers[a].CorrectAnswer" />
-                        }
-                    </div>
-                </div>
-            }
+    <div class="quiz-wrapper">
+        @if (!Model.InitialLoad)
+        {
+            <h2>Your first try score is @Model.CorrectAnswerCount/@Model.QuizItemCount or @firstTryPercentage%</h2>
+            <h2>Your current score is @Model.RetryAnswerCount/@Model.QuizItemCount or @retryPercentage%</h2>
+        }
+        @if (Model.Quizes[i].IncorrectAnswers.Any())
+        {
+            <div class="alert alert-danger" role="alert">
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                <span class="sr-only">Error:</span>
+                The red boxes are incorrect. You can try again or take the next quiz. It will no longer affect your initial score.
             </div>
+        }
+        else if (!Model.InitialLoad && !Model.Quizes[i].IncorrectAnswers.Any())
+        {
+            <div class="alert alert-success" role="alert">
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                <span class="sr-only">Error:</span>
+                Congrats! You answered all correctly. You can take another quiz by clicking the button below.
+            </div>
+        }
+        @if (!Model.InitialLoad)
+        {
+            <a asp-controller="Quiz" asp-action="GenerateSession" asp-route-numQuizTaken="@Model.QuizOfTheDayNumber" asp-route-fromTaker="true" class="btn btn-default">Take Next Quiz</a>
+        }
+
+        <input type="hidden" asp-for="@Model.Quizes[i].QuizId" />
+        <input type="hidden" asp-for="@Model.Quizes[i].Title" />
+        <input type="hidden" asp-for="@Model.Quizes[i].Instructions" />
+
+        <h3>@Model.Quizes[i].Title</h3>
+        <p>@Model.Quizes[i].Instructions</p>
+        <div>
+            @for (int q = 0; q < Model.Quizes[i].Questions.Count; q++)
+        {
+            var question = Model.Quizes[i].Questions[q];
+
+            <input type="hidden" asp-for="@Model.Quizes[i].Questions[q].QuestionId" />
+            <div class="question-wrapper">
+                <b>Question #@(q + 1)</b>
+                <div class="question">
+                    @question.QuestionText
+                </div>
+                <input type="hidden" asp-for="@Model.Quizes[i].Questions[q].QuestionText" />
+                <div class="answer">
+                    @for (int a = 0; a < question.Answers.Count; a++)
+                    {
+                        var answer = question.Answers[a];
+
+                        <div class="form-group answer-item">
+                            <label asp-for="@Model.Quizes[i].Questions[q].Answers[a].UserAnswer">Answer @(question.Answers.Count > 1 ? "#" + (a + 1) : "")</label>
+                            @if (!Model.Quizes[i].QuizChoices.Any())
+                            {
+                            <input class="form-control"
+                                    asp-is-correct="@(!Model.InitialLoad && !Model.Quizes[i].IncorrectAnswers.Contains(answer.AnswerId))"
+                                    asp-is-incorrect="@(!Model.InitialLoad && Model.Quizes[i].IncorrectAnswers.Contains(answer.AnswerId))"
+                                    asp-for="@Model.Quizes[i].Questions[q].Answers[a].UserAnswer" />
+                            }
+                            else
+                            {
+                                <select class="form-control  
+                                        @((!Model.InitialLoad && !Model.Quizes[i].IncorrectAnswers.Contains(answer.AnswerId)) ? "correct-answer" : "") 
+                                        @((!Model.InitialLoad && Model.Quizes[i].IncorrectAnswers.Contains(answer.AnswerId) ? "incorrect-answer": ""))" 
+                                        asp-for="@Model.Quizes[i].Questions[q].Answers[a].UserAnswer"
+                                        asp-items="@Model.Quizes[i].QuizChoices">
+                                    <option></option>
+                                </select>
+                            }
+                        </div>
+                                
+                        <input type="hidden" asp-for="@Model.Quizes[i].Questions[q].Answers[a].AnswerId" />
+                        <input type="hidden" asp-for="@Model.Quizes[i].Questions[q].Answers[a].CorrectAnswer" />
+                    }
+                </div>
+            </div>
+        }
+        </div>
 
             
-            @if (Model.InitialLoad || Model.Quizes[i].IncorrectAnswers.Any())
-            {
-                <input type="submit" class="btn btn-success" value="Submit Answers" />
-            }
+        @if (Model.InitialLoad || Model.Quizes[i].IncorrectAnswers.Any())
+        {
+            <input type="submit" class="btn btn-success" value="Submit Answers" />
+        }
 
-            @if (!Model.InitialLoad && Model.Quizes[i].IncorrectAnswers.Any())
-            {
-            <a asp-controller="Quiz" asp-action="ShowAnswers" asp-route-sessionId="@Model.SessionId" class="btn btn-danger pull-right">Show Answer</a>
-            }
-        </div>
+        @if (!Model.InitialLoad && Model.Quizes[i].IncorrectAnswers.Any())
+        {
+        <a asp-controller="Quiz" asp-action="ShowAnswers" asp-route-sessionId="@Model.SessionId" class="btn btn-danger pull-right">Show Answer</a>
+        }
     </div>
        
  }
