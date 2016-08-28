@@ -12,6 +12,8 @@ using System;
 using System.IO;
 using QuizMaker.Data.Services;
 using Microsoft.Extensions.Options;
+using QuizMaker.Data.Settings;
+using QuizMaker.Data.Extensions;
 
 namespace QuizMaker
 {
@@ -48,7 +50,8 @@ namespace QuizMaker
                 .AddEntityFrameworkStores<ApplicationDbContext, Guid>()
                 .AddDefaultTokenProviders();
 
-            services.AddTransient<QuizService>();
+            services.AddApplicationServices();
+            services.AddApplicationSettings();
 
             services.AddMvc().AddJsonOptions(options =>
             {
@@ -56,7 +59,7 @@ namespace QuizMaker
                 options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             });
         }
-        
+
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, 
             ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager,
             IOptions<Options.IdentityOptions> identityOptions)

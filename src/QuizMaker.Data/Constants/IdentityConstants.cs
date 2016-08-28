@@ -7,6 +7,6 @@ namespace QuizMaker.Data.Constants
 {
     public static class IdentityConstants
     {
-        public const string SuperAdministratorName = "Super Administrator";
+        public const string SuperAdministratorRoleName = "Super Administrator";
     }
 }

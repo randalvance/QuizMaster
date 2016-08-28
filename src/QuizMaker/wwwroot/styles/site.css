@@ -1,6 +1,8 @@
 ﻿body {
     padding-top: 50px;
     padding-bottom: 20px;
+    background-color: black;
+    color: #fff;
 }
 
 /* Wrapping element */
@@ -17,6 +19,40 @@ textarea {
     --max-width: 280px;
 }
 
+a {
+    color: #1200ff;
+}
+
+a:hover, a:focus {
+    color: #3290e4;
+}
+/* Bootstrap Override */
+
+.navbar-inverse,
+.navbar-inverse .navbar-toggle {
+    background-color: #002898;
+}
+
+.navbar-inverse .navbar-brand,
+.navbar-inverse .navbar-nav > li > a,
+.navbar-inverse .btn-link {
+    color: #dedede;
+}
+
+.table > thead > tr > td.success, .table > tbody > tr > td.success, .table > tfoot > tr > td.success, .table > thead > tr > th.success, .table > tbody > tr > th.success, .table > tfoot > tr > th.success, .table > thead > tr.success > td, .table > tbody > tr.success > td, .table > tfoot > tr.success > td, .table > thead > tr.success > th, .table > tbody > tr.success > th, .table > tfoot > tr.success > th {
+    background-color: #97c584;
+    color: #000;
+}
+
+.table > thead > tr > td.danger, .table > tbody > tr > td.danger, .table > tfoot > tr > td.danger, .table > thead > tr > th.danger, .table > tbody > tr > th.danger, .table > tfoot > tr > th.danger, .table > thead > tr.danger > td, .table > tbody > tr.danger > td, .table > tfoot > tr.danger > td, .table > thead > tr.danger > th, .table > tbody > tr.danger > th, .table > tfoot > tr.danger > th
+{
+    background-color: #f5baba;
+}
+
+table.table tbody {
+    background-color: #ccc;
+    color: #000;
+}
 
 /* ============================================== */
 .quiz-wrapper {
@@ -26,6 +62,7 @@ textarea {
     padding: 10px;
     margin-bottom: 10px;
     background-color: #ffe7ff;
+    color: #333;
 }
 
 .question {
@@ -33,13 +70,8 @@ textarea {
     
 }
 
-.session-list-row-active {
-    background-color:  #d2d2ff;
-}
-
-.session-list-row-inactive {
-    background-color:  #e8e8e8;
-    color: gray;
+.session-list-row-ongoing {
+    background-color:  #adabab;
 }
 
 .answer-item {
@@ -66,8 +98,12 @@ textarea.question-content {
     padding: 20px;
 }
 
-.content-wrapper {
+.content-wrapper,
+.panel {
     margin-top: 20px;
+    background-color: #333;
+    color: #fff;
+    border-color: #666;
 }
 
 .correct-label {
@@ -83,4 +119,30 @@ textarea.question-content {
 }
 .list-table {
     margin-top: 20px;
+}
+
+table.result-for-the-day-table {
+    margin: 20px;
+    border-collapse: collapse;
+}
+
+table.result-for-the-day-table td, table.result-for-the-day-table th {
+    padding: 5px;
+}
+
+table.result-for-the-day-table td.grade {
+    font-weight: bold;
+    font-size: 30px;
+}
+
+table.result-for-the-day-table td.passed {
+    color: green;
+}
+
+table.result-for-the-day-table td.failed {
+    color: red;
+}
+
+table.result-for-the-day-tabl, table.result-for-the-day-table tr, table.result-for-the-day-table td {
+    border: 1px solid silver;
 }

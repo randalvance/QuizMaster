@@ -16,5 +16,12 @@ namespace QuizMaker.Models.SessionViewModels
         public DateTime? DateCompleted { get; set; }
         public int CorrectAnswerCount { get; set; }
         public int QuizItemCount { get; set; }
+        public double GradePercentage
+        {
+            get
+            {
+                return ((double)CorrectAnswerCount / QuizItemCount) * 100;
+            }
+        }
     }
 }

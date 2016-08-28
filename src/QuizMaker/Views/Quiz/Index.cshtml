@@ -12,7 +12,7 @@
     </div>
 </div>
 
-@if (User.IsInRole(QuizMaker.Data.Constants.IdentityConstants.SuperAdministratorName))
+@if (User.IsInRole(QuizMaker.Data.Constants.IdentityConstants.SuperAdministratorRoleName))
 {
 <a asp-controller="Quiz" asp-action="Add" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span></a>
 <table class="table table-responsive table-bordered list-table">

@@ -15,6 +15,7 @@ namespace QuizMaker.Models.QuizViewModels
         public int CorrectAnswerCount { get; set; }
         public int RetryAnswerCount { get; set; }
         public int QuizItemCount { get; set; }
+        public int QuizOfTheDayNumber { get; set; }
         public List<QuizViewModel> Quizes { get; set; }
     }
 }

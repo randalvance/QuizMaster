@@ -6,6 +6,7 @@ using QuizMaker.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace QuizMaker.Data.Extensions
 {
@@ -29,18 +30,20 @@ namespace QuizMaker.Data.Extensions
 
                 var role = new ApplicationRole()
                 {
-                    Name = IdentityConstants.SuperAdministratorName
+                    Name = IdentityConstants.SuperAdministratorRoleName
                 };
 
                 await userManager.CreateAsync(user, identityOptions.SuperAdminDefaultPassword);
                 await roleManager.CreateAsync(role);
                 await userManager.AddToRoleAsync(user, role.Name);
 
-                AddExampleQuestions(appDbContext, user, initialQuizFolder);
+                await AddExampleQuestionsAsync(appDbContext, user, initialQuizFolder);
             }
+
+            await AddInitialSettingsAsync(appDbContext);
         }
 
-        private static void AddExampleQuestions(ApplicationDbContext appDbContext, ApplicationUser superAdminUser, string initialQuizFolder)
+        private static async Task AddExampleQuestionsAsync(ApplicationDbContext appDbContext, ApplicationUser superAdminUser, string initialQuizFolder)
         {
             List<QuizCategory> quizCategories = new List<QuizCategory>()
             {
@@ -60,7 +63,7 @@ namespace QuizMaker.Data.Extensions
             };
             appDbContext.QuizGroups.AddRange(quizGroups);
 
-            appDbContext.SaveChanges();
+            await appDbContext.SaveChangesAsync();
 
             List<Quiz> initialQuizes = QuestionParser.ParseQuizFiles(initialQuizFolder);
             var quizGroupCache = new Dictionary<string, Guid>();
@@ -76,7 +79,38 @@ namespace QuizMaker.Data.Extensions
             }
 
             appDbContext.Quizes.AddRange(initialQuizes);
-            appDbContext.SaveChanges();
+            await appDbContext.SaveChangesAsync();
+        }
+
+        private static async Task AddInitialSettingsAsync(ApplicationDbContext appDbContext)
+        {
+            var initialSettings = appDbContext.ApplicationSettings.ToList();
+
+            if (initialSettings.FirstOrDefault(x => x.Name == "Sessions.RecommendedSessionCountPerDay") == null)
+            {
+                ApplicationSetting setting = new ApplicationSetting()
+                {
+                    ApplicationSettingValueType = ApplicationSettingValueType.Int,
+                    Name = "Sessions.RecommendedSessionCountPerDay",
+                    Value = "15"
+                };
+
+                appDbContext.ApplicationSettings.Add(setting);
+            }
+
+            if (initialSettings.FirstOrDefault(x => x.Name == "Quiz.PassingGrade") == null)
+            {
+                ApplicationSetting setting = new ApplicationSetting()
+                {
+                    ApplicationSettingValueType = ApplicationSettingValueType.Double,
+                    Name = "Quiz.PassingGrade",
+                    Value = "70"
+                };
+
+                appDbContext.ApplicationSettings.Add(setting);
+            }
+
+            await appDbContext.SaveChangesAsync();
         }
     }
 }
