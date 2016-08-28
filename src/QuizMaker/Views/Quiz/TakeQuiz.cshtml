@@ -1,11 +1,13 @@
 ﻿@model QuizPageViewModel
 @{ 
     ViewBag.Title = "Quiz Time!";
+    ViewBag.HeaderTitle = $"Quiz of the Day {Model.QuizOfTheDayNumber}";
+    Layout = "_LayoutContentpage";
 }
 
-<h2>Quiz Time! No TV!</h2>
 <form asp-controller="Quiz" asp-action="TakeQuiz" asp-route-sessionId="@Model.SessionId" method="post">
 <input type="hidden" asp-for="@Model.CorrectAnswerCount" />
+<input type="hidden" asp-for="@Model.QuizOfTheDayNumber" />
 <div class="panel-group">
 @for (int i = 0; i < Model.Quizes.Count; i++)
 {
@@ -40,7 +42,7 @@
             }
             @if (!Model.InitialLoad)
             {
-                <a asp-controller="Quiz" asp-action="GenerateSession" class="btn btn-default">Take Next Quiz</a>
+                <a asp-controller="Quiz" asp-action="GenerateSession" asp-route-numQuizTaken="@Model.QuizOfTheDayNumber" asp-route-fromTaker="true" class="btn btn-default">Take Next Quiz</a>
             }
 
             <input type="hidden" asp-for="@Model.Quizes[i].QuizId" />

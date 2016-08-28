@@ -12,7 +12,7 @@ using QuizMaker.Data.Constants;
 
 namespace QuizMaker.Controllers
 {
-    [Authorize(Roles = IdentityConstants.SuperAdministratorName)]
+    [Authorize(Roles = IdentityConstants.SuperAdministratorRoleName)]
     public class QuestionController : Controller
     {
         private ApplicationDbContext appDbContext;

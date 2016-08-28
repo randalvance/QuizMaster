@@ -29,18 +29,21 @@
                 </button>
                 <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">Quiz Maker</a>
             </div>
+            @if (User.Identity.IsAuthenticated)
+            {
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <li><a asp-area="" asp-controller="Quiz" asp-action="Index">Quiz</a></li>
+                    <li><a asp-area="" asp-controller="Session" asp-action="Index" asp-route-userId="@(UserManager.FindByNameAsync(User.Identity.Name).Result.Id)">Sessions</a></li>
                     @if (User.IsInRole("Super Administrator"))
                     {
                     <li><a asp-area="" asp-controller="QuizGroup" asp-action="Index">Quiz Groups</a></li>
-                    <li><a asp-area="" asp-controller="Session" asp-action="Index">Sessions</a></li>
                     <li><a asp-area="" asp-controller="QuizCategory" asp-action="Index">Categories</a></li>
                     }
                 </ul>
                 @await Html.PartialAsync("_LoginPartial")
             </div>
+            }
         </div>
     </div>
     <div class="container body-content">

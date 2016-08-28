@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QuizMaker.Data;
 using QuizMaker.Data.Services;
+using QuizMaker.Data.Settings;
 using QuizMaker.Models;
 using QuizMaker.Models.QuizViewModels;
 using QuizMaker.Models.SessionViewModels;
@@ -21,17 +22,23 @@ namespace QuizMaker.Controllers
     {
         private readonly ApplicationDbContext appDbContext;
         private readonly QuizService quizService;
+        private readonly SessionSettings sessionSettings;
+        private readonly QuizSettings quizSettings;
 
         private readonly UserManager<ApplicationUser> userManager;
 
         public QuizController(
             ApplicationDbContext appDbContext,
             UserManager<ApplicationUser> userManager,
-            QuizService quizService)
+            QuizService quizService,
+            SessionSettings sessionSettings,
+            QuizSettings quizSettings)
         {
             this.appDbContext = appDbContext;
             this.userManager = userManager;
             this.quizService = quizService;
+            this.sessionSettings = sessionSettings;
+            this.quizSettings = quizSettings;
         }
 
         public IActionResult Index()
@@ -153,7 +160,7 @@ namespace QuizMaker.Controllers
             return View(viewModel);
         }
 
-        public async Task<IActionResult> GenerateSession(Guid? id)
+        public async Task<IActionResult> GenerateSession(Guid? id, int numQuizTaken = 0, bool fromTaker = false)
         {
             Guid quizId = id.HasValue ? id.Value : await GetRecommendedQuizId();
 
@@ -165,7 +172,7 @@ namespace QuizMaker.Controllers
                 ApplicationUserId = user.Id,
                 CorrectAnswerCount = 0,
                 QuizItemCount = quiz.QuizQuestions.Count,
-                SessionStatus = SessionStatus.Active,
+                SessionStatus = SessionStatus.Ongoing,
                 QuizSessions = new List<QuizSession>()
                 {
                     new QuizSession()
@@ -178,6 +185,15 @@ namespace QuizMaker.Controllers
             appDbContext.Sessions.Add(session);
             appDbContext.SaveChanges();
 
+            if (fromTaker)
+            {
+                int requiredSessionsPerDay = await sessionSettings.RecommendedSessionCountPerDay;
+
+                if (requiredSessionsPerDay == numQuizTaken)
+                {
+                    return RedirectToAction("Index", "Session", new { userId = user.Id });
+                }
+            }
             return RedirectToAction("TakeQuiz", "Quiz", new { sessionId = session.SessionId });
         }
 
@@ -185,7 +201,7 @@ namespace QuizMaker.Controllers
         {
             Session session = GetSessionForShowingAnswer(sessionId);
 
-            var maxChronology = session.SessionAnswers.Max(x => x.AnswerChronology);
+            var maxChronology = session.SessionAnswers != null && session.SessionAnswers.Any() ? session.SessionAnswers.Max(x => x.AnswerChronology) : 0;
 
             var sessionAnswers = session.SessionAnswers.Where(x => firstAnswers || maxChronology == 0 ? x.AnswerChronology == 0 : x.AnswerChronology != 0).ToList();
 
@@ -204,6 +220,8 @@ namespace QuizMaker.Controllers
             }
 
             QuizPageViewModel viewModel = GetQuizPageViewModel(session);
+
+            viewModel.QuizOfTheDayNumber = await quizService.GetQuizOfTheDaySequenceNumberAsync(User);
 
             if (session.SessionAnswers.Count > 0)
             {
@@ -252,7 +270,7 @@ namespace QuizMaker.Controllers
 
                 correctAnswerCount += quizCorrectAnswerCount;
 
-                if (session.SessionStatus == SessionStatus.Active)
+                if (session.SessionStatus == SessionStatus.Ongoing)
                 {
                     quiz.CorrectAnswerCount = quizCorrectAnswerCount;
                 }
@@ -263,7 +281,7 @@ namespace QuizMaker.Controllers
                 quiz.QuizChoices = new SelectList(quizObj.QuizChoices, "Choice", "Choice");
             }
 
-            if (session.SessionStatus == SessionStatus.Active)
+            if (session.SessionStatus == SessionStatus.Ongoing)
             {
                 session.CorrectAnswerCount = correctAnswerCount;
                 session.SessionStatus = SessionStatus.Done;

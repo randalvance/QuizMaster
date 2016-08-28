@@ -16,6 +16,7 @@ namespace QuizMaker.Data
         {
             base.OnModelCreating(builder);
             
+            builder.Entity<ApplicationSetting>().HasAlternateKey(x => x.Name).HasName("UQ_ApplicationSetting_Name");
             builder.Entity<Quiz>().HasAlternateKey(x => x.Code).HasName("UQ_Quiz_Code");
             builder.Entity<QuizCategory>().HasAlternateKey(x => x.Code).HasName("UQ_QuizCategory_Code");
             builder.Entity<QuizGroup>().HasAlternateKey(x => x.Code).HasName("UQ_QuizGroup_Code");
@@ -24,6 +25,7 @@ namespace QuizMaker.Data
             builder.Entity<QuizPrerequisites>().HasKey(x => new { x.QuizId, x.PrerequisiteQuizCode });
         }
 
+        public DbSet<ApplicationSetting> ApplicationSettings { get; set; }
         public DbSet<Session> Sessions { get; set; }
         public DbSet<Quiz> Quizes { get; set; }
         public DbSet<QuizCategory> QuizCategories { get; set; }

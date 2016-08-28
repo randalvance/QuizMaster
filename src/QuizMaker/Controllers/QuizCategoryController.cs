@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace QuizMaker.Controllers
 {
-    [Authorize(Roles = IdentityConstants.SuperAdministratorName)]
+    [Authorize(Roles = IdentityConstants.SuperAdministratorRoleName)]
     public class QuizCategoryController : Controller
     {
         private ApplicationDbContext appDbContext;

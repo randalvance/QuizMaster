@@ -1,38 +1,66 @@
 ﻿@model SessionListViewModel
 @{
+    Layout = "_LayoutContentPage";
     ViewBag.Title = "Sessions";
+    ViewBag.HeaderTitle = "Quizes Taken";
 }
 
-<div class="panel panel-default content-wrapper">
-    <div class="panel-body">
-        <table class="table table-responsive table-bordered">
-            <thead>
-                <tr>
-                    <th>User</th>
-                    <th>Quiz Title</th>
-                    <th>Session Link</th>
-                    <th>Status</th>
-                    <th>Date Taken</th>
-                    <th>Date Completed</th>
-                    <th>Correct Item Count</th>
-                    <th>Quiz Item Count</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var session in Model.Sessions)
-                {
-                <tr class="@(session.SessionStatus == SessionStatus.Done.ToString() ? "session-list-row-inactive" : "session-list-row-active")">
-                    <td>@session.UserName</td>
-                    <td><a asp-controller="Quiz" asp-action="ShowAnswers" asp-route-sessionId="@session.SessionId" asp-route-hideNext="true" asp-route-firstAnswers="true">@session.QuizTitle</a></td>
-                    <td><a asp-controller="Quiz" asp-action="TakeQuiz" asp-route-sessionId="@session.SessionId" asp-route-hideNext="true">Link</a></td>
-                    <td>@session.SessionStatus</td>
-                    <td>@session.DateTaken</td>
-                    <td>@session.DateCompleted</td>
-                    <td>@session.CorrectAnswerCount</td>
-                    <td>@session.QuizItemCount</td>
-                </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+<div class="row">
+    <table class="col-md-2 result-for-the-day-table">
+        <tr>
+            <th class="text-right">Grade for Today</th>
+            <td class="grade @(Model.Remark == "Passed" ? "passed" : "failed")">@Model.Remark (@Model.GradeAverage.ToString("F0")%)</td>
+        </tr>
+        <tr>
+            <th class="text-right">Quizes Completed</th>
+            <td>@Model.QuizesCompleted out of @Model.RequiredQuizes</td>
+        </tr>
+        <tr>
+            <th class="text-right">Quizes Passed</th>
+            <td>@Model.QuizesPassed</td>
+        </tr>
+        <tr>
+            <th class="text-right">Quizes Failed</th>
+            <td>@Model.QuizesFailed</td>
+        </tr>
+    </table>
 </div>
+
+<h2>Quizes</h2>
+<table class="table table-responsive table-bordered">
+    <thead>
+        <tr>
+            @if (!Model.UserSpecified)
+            {
+                <th>User</th>
+            }
+            <th>Quiz Title</th>
+            <th>Status</th>
+            <th>Correct Answers</th>
+            <th class="hidden-xs">Quiz Item Count</th>
+            <th class="hidden-xs">Date Taken</th>
+            <th class="hidden-xs">Date Completed</th>
+            <th>Session Link</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var session in Model.Sessions)
+        {
+        <tr class="@(session.SessionStatus != SessionStatus.Done.ToString() ? "session-list-row-ongoing" : 
+                ((double)session.CorrectAnswerCount / session.QuizItemCount) * 100 >= Model.PassingGrade ? "success" : "danger")">
+            @if (!Model.UserSpecified)
+            {
+
+                <td>@session.UserName</td>
+            }
+            <td><a asp-controller="Quiz" asp-action="ShowAnswers" asp-route-sessionId="@session.SessionId" asp-route-hideNext="true" asp-route-firstAnswers="true">@session.QuizTitle</a></td>
+            <td>@session.SessionStatus</td>
+            <td>@session.CorrectAnswerCount</td>
+            <td class="hidden-xs">@session.QuizItemCount</td>
+            <td class="hidden-xs">@session.DateTaken</td>
+            <td class="hidden-xs">@session.DateCompleted</td>
+            <td><a asp-controller="Quiz" asp-action="TakeQuiz" asp-route-sessionId="@session.SessionId" asp-route-hideNext="true">Link</a></td>
+        </tr>
+        }
+    </tbody>
+</table>

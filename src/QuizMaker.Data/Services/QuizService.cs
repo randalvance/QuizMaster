@@ -1,47 +1,33 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using QuizMaker.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace QuizMaker.Data.Services
 {
-    public class QuizService
+    public class QuizService : ServiceBase
     {
-        private ApplicationDbContext dbContext;
-
-        public QuizService(ApplicationDbContext dbContext)
+        public QuizService(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager) : base(dbContext, userManager)
         {
-            this.dbContext = dbContext;
         }
 
         public async Task<Guid> GetRecommendedQuizAsync(Guid userId)
         {
-            Guid recommendedQuizID;
+            return await ExecuteStoredProcedureScalarResultAsync<Guid>(
+                "GetRecommendedQuizId",
+                new List<SqlParameter> { new SqlParameter("@UserId", SqlDbType.UniqueIdentifier) { Value = userId } });
+        }
 
-            using (var cmd = dbContext.Database.GetDbConnection().CreateCommand())
-            {
-                cmd.CommandText = "GetRecommendedQuizId";
-                cmd.CommandType = System.Data.CommandType.StoredProcedure;
-                cmd.Parameters.Add(new SqlParameter("@UserId", SqlDbType.UniqueIdentifier) { Value = userId });
-
-                if (cmd.Connection.State != ConnectionState.Open)
-                {
-                    cmd.Connection.Open();
-                }
-
-                using (var dataReader = await cmd.ExecuteReaderAsync())
-                {
-                    while (await dataReader.ReadAsync())
-                    {
-                        recommendedQuizID = dataReader.GetGuid(0);
-                    }
-                }
-            }
-
-            return recommendedQuizID;
+        public async Task<int> GetQuizOfTheDaySequenceNumberAsync(ClaimsPrincipal user)
+        {
+            var usr = await UserManager.FindByNameAsync(user.Identity.Name);
+            return await DbContext.Sessions.Where(x => x.ApplicationUserId == usr.Id && x.DateCompleted.HasValue && x.DateCompleted.Value.Date == DateTime.Now.Date).CountAsync() + 1;
         }
     }
 }

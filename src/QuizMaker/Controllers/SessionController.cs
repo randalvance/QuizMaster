@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuizMaker.Data;
+using QuizMaker.Data.Constants;
+using QuizMaker.Data.Services;
+using QuizMaker.Data.Settings;
 using QuizMaker.Models.SessionViewModels;
 using System;
 using System.Linq;
@@ -13,20 +16,38 @@ namespace QuizMaker.Controllers
     public class SessionController : Controller
     {
         private ApplicationDbContext appDbContext;
+        private QuizService quizService;
+        private ApplicationSettingService appSettingsService;
+        private SessionSettings sessionsSettings;
+        private QuizSettings quizSettings;
 
-        public SessionController(ApplicationDbContext appDbContext)
+        public SessionController(ApplicationDbContext appDbContext,
+                                 ApplicationSettingService appSettingsService,
+                                 QuizService quizService,
+                                 SessionSettings sessionsSettings,
+                                 QuizSettings quizSettings)
         {
             this.appDbContext = appDbContext;
+            this.appSettingsService = appSettingsService;
+            this.quizService = quizService;
+            this.sessionsSettings = sessionsSettings;
+            this.quizSettings = quizSettings;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(Guid? userId = null)
         {
-            var viewModel = new SessionListViewModel()
+            var isAdmin = User.IsInRole(IdentityConstants.SuperAdministratorRoleName);
+
+            if (userId == null && !isAdmin)
             {
-                Sessions = await appDbContext.Sessions
+                throw new UnauthorizedAccessException("You are not an administrator.");
+            }
+
+            var sessions = await appDbContext.Sessions
                             .Include(s => s.ApplicationUser)
                             .Include(s => s.QuizSessions).ThenInclude(qs => qs.Quiz)
-                            .Where(s => (s.DateCompleted.HasValue ? s.DateCompleted.Value : s.DateTaken).Date == DateTime.Now.Date)
+                            .Where(s => (s.DateCompleted.HasValue ? s.DateCompleted.Value : s.DateTaken).Date == DateTime.Now.Date &&
+                                         ((userId.HasValue && s.ApplicationUserId == userId) || isAdmin))
                             .OrderBy(s => s.SessionStatus).ThenByDescending(s => (s.DateCompleted.HasValue ? s.DateCompleted.Value : s.DateTaken))
                             .Select(s => new SessionViewModel()
                             {
@@ -38,7 +59,19 @@ namespace QuizMaker.Controllers
                                 CorrectAnswerCount = s.CorrectAnswerCount,
                                 QuizItemCount = s.QuizItemCount,
                                 QuizTitle = string.Join("|", s.QuizSessions.Select(qss => qss.Quiz.Title).ToArray())
-                            }).ToListAsync()
+                            }).ToListAsync();
+
+            var passingGrade = await quizSettings.PassingGrade;
+
+            var viewModel = new SessionListViewModel()
+            {
+                Sessions = sessions,
+                UserSpecified = userId.HasValue,
+                PassingGrade = passingGrade,
+                QuizesCompleted = await quizService.GetQuizOfTheDaySequenceNumberAsync(User),
+                QuizesPassed = sessions.Count(x => x.GradePercentage >= passingGrade),
+                QuizesFailed = sessions.Count(x => x.GradePercentage < passingGrade),
+                RequiredQuizes = await sessionsSettings.RecommendedSessionCountPerDay
             };
             return View(viewModel);
         }

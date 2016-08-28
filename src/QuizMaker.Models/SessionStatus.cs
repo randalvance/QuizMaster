@@ -8,7 +8,7 @@ namespace QuizMaker.Models
     public enum SessionStatus : byte
     {
         NotStarted = 0,
-        Active = 1,
+        Ongoing = 1,
         Done = 2
     }
 }
