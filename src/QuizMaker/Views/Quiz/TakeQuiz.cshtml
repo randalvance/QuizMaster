@@ -5,13 +5,12 @@
 
 <h2>Quiz Time! No TV!</h2>
 <form asp-controller="Quiz" asp-action="TakeQuiz" asp-route-sessionId="@Model.SessionId" method="post">
-
+<input type="hidden" asp-for="@Model.CorrectAnswerCount" />
 <div class="panel-group">
 @for (int i = 0; i < Model.Quizes.Count; i++)
 {
-    var correctAnswer = Model.CorrectAnswerCount;
-    var totalItemCount = Model.QuizItemCount;
-    var percentage = totalItemCount == 0 ? 0 : Math.Round(((double)correctAnswer / totalItemCount) * 100);
+    var firstTryPercentage = Model.QuizItemCount == 0 ? 0 : Math.Round(((double)Model.CorrectAnswerCount / Model.QuizItemCount) * 100);
+    var retryPercentage = Model.QuizItemCount == 0 ? 0 : Math.Round(((double)Model.RetryAnswerCount / Model.QuizItemCount) * 100);
 
     <input type="hidden" asp-for="@Model.CorrectAnswerCount" />
     <input type="hidden" asp-for="@Model.QuizItemCount" />
@@ -20,7 +19,8 @@
         <div class="panel-body">
             @if (!Model.InitialLoad)
             {
-                <h2>Your first try score is @correctAnswer/@totalItemCount or @percentage%</h2>
+                <h2>Your first try score is @Model.CorrectAnswerCount/@Model.QuizItemCount or @firstTryPercentage%</h2>
+                <h2>Your current score is @Model.RetryAnswerCount/@Model.QuizItemCount or @retryPercentage%</h2>
             }
             @if (Model.Quizes[i].IncorrectAnswers.Any())
             {

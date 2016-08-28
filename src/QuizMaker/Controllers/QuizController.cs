@@ -242,6 +242,7 @@ namespace QuizMaker.Controllers
             var quizes = appDbContext.Quizes.Include(x => x.QuizChoices).AsQueryable();
 
             viewModel.QuizItemCount = 0;
+            viewModel.CorrectAnswerCount = session.CorrectAnswerCount;
 
             foreach (var quiz in viewModel.Quizes)
             {
@@ -267,7 +268,11 @@ namespace QuizMaker.Controllers
                 session.CorrectAnswerCount = correctAnswerCount;
                 session.SessionStatus = SessionStatus.Done;
                 session.DateCompleted = DateTime.Now;
+
+                viewModel.CorrectAnswerCount = correctAnswerCount;
             }
+
+            viewModel.RetryAnswerCount = correctAnswerCount;
 
             appDbContext.SessionAnswers.AddRange(sessionAnswers);
 
