@@ -199,13 +199,11 @@ namespace QuizMaster.Controllers
 
         public IActionResult ShowAnswers(Guid sessionId, bool hideNext, bool firstAnswers)
         {
-            Session session = GetSessionForShowingAnswer(sessionId);
+            var session = GetSessionForShowingAnswer(sessionId);
 
             var maxChronology = session.SessionAnswers != null && session.SessionAnswers.Any() ? session.SessionAnswers.Max(x => x.AnswerChronology) : 0;
 
-            var sessionAnswers = session.SessionAnswers.Where(x => firstAnswers || maxChronology == 0 ? x.AnswerChronology == 0 : x.AnswerChronology != 0).ToList();
-
-            ShowAnswersViewModel viewModel = GetShowAnswersViewModel(sessionId, hideNext, sessionAnswers);
+            var viewModel = GetShowAnswersViewModel(session, hideNext, firstAnswers, maxChronology);
 
             return View(viewModel);
         }
@@ -220,6 +218,9 @@ namespace QuizMaster.Controllers
             }
 
             QuizPageViewModel viewModel = GetQuizPageViewModel(session);
+
+            RandomizeQuestionDisplayOrders(viewModel, session);
+            SortQuestions(viewModel);
 
             viewModel.QuizOfTheDayNumber = await quizService.GetQuizOfTheDaySequenceNumberAsync(User);
 
@@ -413,17 +414,21 @@ namespace QuizMaster.Controllers
                 .Include(x => x.QuizSessions)
                     .ThenInclude(x => x.Quiz)
                     .ThenInclude(x => x.QuizChoices)
+                .Include(x => x.SessionQuestions)
                 .Where(x => x.SessionId == sessionId)
                 .FirstOrDefaultAsync();
         }
 
         private Session GetSessionForShowingAnswer(Guid sessionId)
         {
-            return appDbContext.Sessions.Include(s => s.SessionAnswers)
-                .ThenInclude(sa => sa.Answer)
-                .ThenInclude(a => a.Question)
-                .ThenInclude(q => q.QuizQuestions)
-                .ThenInclude(qq => qq.Quiz).ToList()
+            return appDbContext.Sessions
+                    .Include(s => s.SessionAnswers)
+                    .Include(s => s.SessionQuestions)
+                    .Include(s => s.QuizSessions)
+                        .ThenInclude(s => s.Quiz)
+                        .ThenInclude(s => s.QuizQuestions)
+                        .ThenInclude(s => s.Question)
+                        .ThenInclude(sa => sa.Answers).ToList()
                 .SingleOrDefault(x => x.SessionId == sessionId);
         }
 
@@ -450,7 +455,7 @@ namespace QuizMaster.Controllers
 
         private static QuizPageViewModel GetQuizPageViewModel(Session session)
         {
-            return new QuizPageViewModel()
+            var viewModel = new QuizPageViewModel()
             {
                 SessionId = session.SessionId,
                 Quizes = session.QuizSessions.Select(x => x.Quiz)
@@ -478,42 +483,100 @@ namespace QuizMaster.Controllers
                 InitialLoad = session.SessionAnswers.Count == 0,
                 CorrectAnswerCount = session.CorrectAnswerCount
             };
+
+            return viewModel;
         }
 
-        private static ShowAnswersViewModel GetShowAnswersViewModel(Guid sessionId, bool hideNext, List<SessionAnswer> sessionAnswers)
+        private void RandomizeQuestionDisplayOrders(QuizPageViewModel viewModel, Session session)
         {
-            return new ShowAnswersViewModel()
+            var randomizer = new Random();
+            
+            foreach(var quiz in viewModel.Quizes)
             {
-                SessionId = sessionId,
-                QuizGroups = sessionAnswers.Select(
-                    x =>
+                var displayOrders = Enumerable.Range(1, quiz.Questions.Count).ToList();
+                foreach(var question in quiz.Questions)
+                {
+                    var randomIndex = randomizer.Next(0, displayOrders.Count - 1);
+                    var randomDisplayOrder = displayOrders[randomIndex];
+
+                    var sessionQuestion = session.SessionQuestions.SingleOrDefault(x => x.QuestionId == question.QuestionId);
+
+                    if (sessionQuestion == null)
                     {
-                        var quiz = x.Answer.Question.QuizQuestions.SingleOrDefault(q => q.QuestionId == x.Answer.QuestionId).Quiz;
-                        
-                        return new SessionAnswerViewModel()
+                        sessionQuestion = new SessionQuestion()
                         {
-                            AnswerId = x.AnswerId,
-                            QuizId = quiz.QuizId,
-                            QuizTitle = quiz.Title,
-                            QuizInstructions = quiz.Instructions,
-                            QuestionText = x.Answer.Question.QuestionText,
-                            CorrectAnswer = x.Answer.AnswerText,
-                            UserAnswer = x.UserAnswer,
-                            IsCorrect = x.IsCorrect,
-                            AnswersOrderImportant = quiz.AnswersOrderImportant
+                            QuestionId = question.QuestionId,
+                            DisplayOrder = randomDisplayOrder
                         };
-                    }).GroupBy(savm => savm.QuizId).Select(g => new ShowAnswersQuizGroupViewModel()
+
+                        session.SessionQuestions.Add(sessionQuestion);
+                        displayOrders.Remove(randomDisplayOrder);
+                    }
+                    else
                     {
-                        QuizTitle = g.FirstOrDefault().QuizTitle,
-                        QuizIndustructions = g.FirstOrDefault().QuizInstructions,
-                        AnswersOrderImportant = g.FirstOrDefault().AnswersOrderImportant,
-                        Answers = g.ToList()
-                    }).ToList(),
-                HideNext = hideNext
-            };
+                        displayOrders.Remove(sessionQuestion.DisplayOrder);
+                    }
+
+                    question.DisplayOrder = sessionQuestion.DisplayOrder;
+                }
+            }
+
+            appDbContext.SaveChanges();
         }
 
-        private static Task<int> ProcessQuestionsAsync(Guid sessionId, int lastChronologicalOrder,
+        private ShowAnswersPageViewModel GetShowAnswersViewModel(Session session, bool hideNext, bool firstAnswers, int maxChronology)
+        {
+            int displayOrder = 1;
+
+            Func<Question, int> getDisplayOrder = question =>
+            {
+                var sessionQuestion = session.SessionQuestions.SingleOrDefault(q => q.QuestionId == question.QuestionId);
+
+                return sessionQuestion != null ? sessionQuestion.DisplayOrder : displayOrder++;
+            };
+
+            Func<Answer, ShowAnswersAnswerViewModel> getAnswerViewModel = answer =>
+            {
+                var sessionAnswer = session.SessionAnswers
+                    .Where(x => firstAnswers || maxChronology == 0 ? x.AnswerChronology == 0 : x.AnswerChronology != 0)
+                    .FirstOrDefault(sa => sa.AnswerId == answer.AnswerId);
+
+                return sessionAnswer != null ? new ShowAnswersAnswerViewModel()
+                {
+                    AnswerId = answer.AnswerId,
+                    IsCorrect = sessionAnswer.IsCorrect,
+                    CorrectAnswer = answer.AnswerText,
+                    UserAnswer = sessionAnswer.UserAnswer
+                } : new ShowAnswersAnswerViewModel();
+            };
+
+            var viewModel = new ShowAnswersPageViewModel()
+            {
+                SessionId = session.SessionId,
+                Quizes = session.QuizSessions
+                        .Select(qs => qs.Quiz)
+                        .Select(q => new ShowAnswersQuizViewModel()
+                        {
+                            QuizId = q.QuizId,
+                            QuizTitle = q.Title,
+                            QuizInstructions = q.Instructions,
+                            AnswersOrderImportant = q.AnswersOrderImportant,
+                            Questions = q.QuizQuestions.Select(qq => new ShowAnswersQuestionViewModel()
+                            {
+                                QuestionId = qq.QuestionId,
+                                QuestionText = qq.Question.QuestionText,
+                                DisplayOrder = getDisplayOrder(qq.Question),
+                                Answers = qq.Question.Answers.Select(answer => getAnswerViewModel(answer)).ToList()
+                            }).OrderBy(question => question.DisplayOrder).ToList()
+                        }).ToList()
+            };
+
+            ViewBag.HideNext = hideNext;
+
+            return viewModel;
+        }
+
+        private Task<int> ProcessQuestionsAsync(Guid sessionId, int lastChronologicalOrder,
             List<SessionAnswer> sessionAnswers, QuizViewModel quiz)
         {
             return Task.Run(async () =>
@@ -575,7 +638,7 @@ namespace QuizMaster.Controllers
             }
         }
 
-        private static Task<bool> CheckAnswersAsync(
+        private Task<bool> CheckAnswersAsync(
             Guid sessionId,
             QuizViewModel quiz,
             List<SessionAnswer> sessionAnswers,
@@ -616,7 +679,7 @@ namespace QuizMaster.Controllers
             });
         }
 
-        private static void UpdateChoices(bool isAdd, List<QuizChoice> quizChoices, Quiz quizzy)
+        private void UpdateChoices(bool isAdd, List<QuizChoice> quizChoices, Quiz quizzy)
         {
             if (!isAdd)
             {
@@ -640,10 +703,18 @@ namespace QuizMaster.Controllers
             }
         }
 
-        private static void MarkAnswerAsIncorrect(QuizViewModel quiz, SessionAnswerViewModel answer, SessionAnswer sessionAnswer)
+        private void MarkAnswerAsIncorrect(QuizViewModel quiz, SessionAnswerViewModel answer, SessionAnswer sessionAnswer)
         {
             quiz.IncorrectAnswers.Add(answer.AnswerId);
             sessionAnswer.IsCorrect = false;
+        }
+
+        private void SortQuestions(QuizPageViewModel viewModel)
+        {
+            foreach (var quiz in viewModel.Quizes)
+            {
+                quiz.Questions = quiz.Questions.OrderBy(x => x.DisplayOrder).ToList();
+            }
         }
     }
 }

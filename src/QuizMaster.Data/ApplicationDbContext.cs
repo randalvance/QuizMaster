@@ -34,6 +34,7 @@ namespace QuizMaster.Data
         public DbSet<Answer> Answers { get; set; }
         public DbSet<QuizSession> QuizSessions { get; set;}
         public DbSet<SessionAnswer> SessionAnswers { get; set; }
+        public DbSet<SessionQuestion> SessionQuestions { get; set; }
         public DbSet<QuizQuestion> QuizQuestions { get; set; }
         public DbSet<QuizChoice> QuizChoices { get; set; }
         public DbSet<QuestionChoice> QuestionChoices { get; set; }
