@@ -27,7 +27,8 @@ namespace QuizMaster.Data.Services
         public async Task<int> GetQuizOfTheDaySequenceNumberAsync(ClaimsPrincipal user)
         {
             var usr = await UserManager.FindByNameAsync(user.Identity.Name);
-            return await DbContext.Sessions.Where(x => x.ApplicationUserId == usr.Id && x.DateCompleted.HasValue && x.DateCompleted.Value.Date == DateTime.Now.Date).CountAsync() + 1;
+            return await DbContext.Sessions.Where(x => x.ApplicationUserId == usr.Id && x.SessionStatus == SessionStatus.Done 
+                && x.DateCompleted.HasValue && x.DateCompleted.Value.Date == DateTime.Now.Date).CountAsync() + 1;
         }
     }
 }

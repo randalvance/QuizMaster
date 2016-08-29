@@ -16,7 +16,7 @@ namespace QuizMaster.Models.SessionViewModels
         {
             get
             {
-                var grades = Sessions.Select(x => x.GradePercentage).ToList();
+                var grades = Sessions.Where(x => x.SessionStatus == SessionStatus.Done.ToString()).Select(x => x.GradePercentage).ToList();
 
                 if (grades.Count < RequiredQuizes)
                 {

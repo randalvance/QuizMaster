@@ -155,16 +155,27 @@ namespace QuizMaster.Controllers
             Guid recommendedQuizId = await GetRecommendedQuizId();
 
             var quiz = appDbContext.Quizes.SingleOrDefault(x => x.QuizId == recommendedQuizId);
+
+            if (quiz == null)
+            {
+                return RedirectToAction("NoMoreQuiz");
+            }
+
             var viewModel = new RecommendedQuizViewModel() { QuizId = quiz.QuizId, Title = quiz.Title };
 
             return View(viewModel);
         }
 
-        public async Task<IActionResult> GenerateSession(Guid? id, int numQuizTaken = 0, bool fromTaker = false)
+        public async Task<IActionResult> GenerateSession(Guid? id = null, int numQuizTaken = 0, bool fromTaker = false)
         {
             Guid quizId = id.HasValue ? id.Value : await GetRecommendedQuizId();
 
             var quiz = appDbContext.Quizes.Include(x => x.QuizQuestions).SingleOrDefault(x => x.QuizId == quizId);
+
+            if (quiz == null)
+            {
+                return RedirectToAction("NoMoreQuiz");
+            }
 
             var user = await userManager.FindByNameAsync(User.Identity.Name);
             var session = new Session()
@@ -183,7 +194,7 @@ namespace QuizMaster.Controllers
             };
 
             appDbContext.Sessions.Add(session);
-            appDbContext.SaveChanges();
+            await appDbContext.SaveChangesAsync();
 
             if (fromTaker)
             {
@@ -195,6 +206,15 @@ namespace QuizMaster.Controllers
                 }
             }
             return RedirectToAction("TakeQuiz", "Quiz", new { sessionId = session.SessionId });
+        }
+
+        public async Task<IActionResult> SkipSession(Guid sessionId)
+        {
+            var session = appDbContext.Sessions.SingleOrDefault(s => s.SessionId == sessionId);
+            session.SessionStatus = SessionStatus.Skipped;
+            await appDbContext.SaveChangesAsync();
+
+            return await GenerateSession();
         }
 
         public IActionResult ShowAnswers(Guid sessionId, bool hideNext, bool firstAnswers)
@@ -226,7 +246,7 @@ namespace QuizMaster.Controllers
 
             if (session.SessionAnswers.Count > 0)
             {
-                await TakeQuizAsync(viewModel);
+                await TakeQuizAsync(viewModel, false);
             }
 
             ViewBag.HideNext = hideNext && session.SessionStatus == SessionStatus.Done;
@@ -252,9 +272,20 @@ namespace QuizMaster.Controllers
             return RedirectToAction("Index", new { deleteSuccess = true });
         }
 
-        private async Task TakeQuizAsync(QuizPageViewModel viewModel)
+        public IActionResult NoMoreQuiz()
         {
-            int lastChronologicalOrder = await ClearSessionAnswersAsync(viewModel);
+            return View();
+        }
+
+        private async Task TakeQuizAsync(QuizPageViewModel viewModel, bool isPost = true)
+        {
+            int lastChronologicalOrder = await GetLastChronologicalOrder(viewModel.SessionId);
+            viewModel.IsRetry = appDbContext.SessionAnswers.Any(x => x.SessionId == viewModel.SessionId);
+
+            if (isPost)
+            {
+                await ClearSessionAnswersAsync(viewModel);
+            }
 
             int correctAnswerCount = 0;
 
@@ -284,7 +315,7 @@ namespace QuizMaster.Controllers
                 quiz.QuizChoices = new SelectList(quizObj.QuizChoices, "Choice", "Choice");
             }
 
-            if (session.SessionStatus == SessionStatus.Ongoing)
+            if (session.SessionStatus == SessionStatus.Ongoing && isPost)
             {
                 session.CorrectAnswerCount = correctAnswerCount;
                 session.SessionStatus = SessionStatus.Done;
@@ -297,7 +328,10 @@ namespace QuizMaster.Controllers
 
             appDbContext.SessionAnswers.AddRange(sessionAnswers);
 
-            await appDbContext.SaveChangesAsync();
+            if (isPost)
+            {
+                await appDbContext.SaveChangesAsync();
+            }
 
             viewModel.InitialLoad = false;
         }
@@ -383,22 +417,19 @@ namespace QuizMaster.Controllers
             });
         }
         
-        private async Task<int> ClearSessionAnswersAsync(QuizPageViewModel viewModel)
+        private async Task ClearSessionAnswersAsync(QuizPageViewModel viewModel)
         {
             // Hack, we'll probably find a better way of updating existing session answers
             var sessionAnswers = appDbContext.SessionAnswers.Where(x => x.SessionId == viewModel.SessionId);
-            var firstSessionAnswer = await sessionAnswers.FirstOrDefaultAsync();
-
-            if (firstSessionAnswer != null)
-            {
-                viewModel.IsRetry = true;
-            }
-
-            var lastChronologicalOrder = firstSessionAnswer?.AnswerChronology + 1 ?? 0;
             var sessionAnswersToDelete = sessionAnswers.Where(x => x.AnswerChronology > 0);
             appDbContext.SessionAnswers.RemoveRange(sessionAnswersToDelete);
             await appDbContext.SaveChangesAsync();
+        }
 
+        private async Task<int> GetLastChronologicalOrder(Guid sessionId)
+        {
+            var firstSessionAnswer = await appDbContext.SessionAnswers.FirstOrDefaultAsync(x => x.SessionId == sessionId);
+            var lastChronologicalOrder = firstSessionAnswer?.AnswerChronology + 1 ?? 0;
             return lastChronologicalOrder;
         }
         
