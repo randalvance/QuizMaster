@@ -20,13 +20,15 @@ namespace QuizMaster.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid SessionId { get; set; }
         public Guid ApplicationUserId { get; set; }
-        public ApplicationUser ApplicationUser { get; set; }
-        public List<QuizSession> QuizSessions { get; set; }
-        public List<SessionAnswer> SessionAnswers { get; set; }
         public SessionStatus SessionStatus { get; set; }
         public int CorrectAnswerCount { get; set; }
         public int QuizItemCount { get; set; }
         public DateTime DateTaken { get; set; }
         public DateTime? DateCompleted { get; set; }
+
+        public ApplicationUser ApplicationUser { get; set; }
+        public List<QuizSession> QuizSessions { get; set; }
+        public List<SessionAnswer> SessionAnswers { get; set; }
+        public List<SessionQuestion> SessionQuestions { get; set; }
     }
 }

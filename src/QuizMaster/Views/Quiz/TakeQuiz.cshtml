@@ -74,7 +74,7 @@
         <h3>@Model.Quizes[i].Title</h3>
         <p>@Model.Quizes[i].Instructions</p>
         <div>
-            @for (int q = 0; q < Model.Quizes[i].Questions.Count; q++)
+        @for (int q = 0; q < Model.Quizes[i].Questions.Count; q++)
         {
             var question = Model.Quizes[i].Questions[q];
 

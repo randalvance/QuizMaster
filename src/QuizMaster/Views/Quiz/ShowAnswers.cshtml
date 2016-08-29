@@ -1,20 +1,17 @@
-﻿@model ShowAnswersViewModel
+﻿@model ShowAnswersPageViewModel
 @{
-    ViewBag.Title = "Quiz Index";
+    ViewBag.Title = "Show Answers";
 }
 <div class="panel panel-default content-wrapper">
     <div class="panel-body">
         <h3>Answers</h3>
-        @foreach (var quiz in Model.QuizGroups)
+        @foreach (var quiz in Model.Quizes)
         {
             <div>
                 <h4>@quiz.QuizTitle</h4>
-                <p>@quiz.QuizIndustructions</p>
+                <p>@quiz.QuizInstructions</p>
                 <ol>
-                    @{ 
-                        var questions = quiz.Answers.GroupBy(a => a.QuestionText).Select(g => new { QuestionText = g.Key, Answers = g.ToList() });
-                    }
-                    @foreach (var question in questions)
+                    @foreach (var question in quiz.Questions)
                     {
                         <li><b>Q: </b>@question.QuestionText<br />
                             <ul>
@@ -59,7 +56,7 @@
             </div>
         }
 
-        @if (!Model.HideNext)
+        @if (!ViewBag.HideNext)
         {
         <a asp-controller="Quiz" asp-action="GenerateSession" class="btn btn-success">Next Quiz Please</a>
         }

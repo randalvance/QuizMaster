@@ -9,6 +9,7 @@ namespace QuizMaster.Models.SessionViewModels
     {
         public Guid QuestionId { get; set; }
         public string QuestionText { get; set; }
+        public int DisplayOrder { get; set; }
         public List<SessionAnswerViewModel> Answers { get; set; }
     }
 }
