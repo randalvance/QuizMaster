@@ -127,7 +127,10 @@ table.result-for-the-day-table {
 }
 
 table.result-for-the-day-table td, table.result-for-the-day-table th {
-    padding: 5px;
+    padding-right: 10px;
+}
+table.result-for-the-day-table td, table.result-for-the-day-table td {
+    padding-left: 10px;
 }
 
 table.result-for-the-day-table td.grade {
@@ -145,4 +148,24 @@ table.result-for-the-day-table td.failed {
 
 table.result-for-the-day-tabl, table.result-for-the-day-table tr, table.result-for-the-day-table td {
     border: 1px solid silver;
+}
+
+#score-container {
+    margin-top: 10px;
+}
+
+#first-score-container,
+#current-score-container {
+}
+
+.score-label {
+    font-size: 50px;
+}
+.daily-grade-label {
+    font-size: 30px;
+}
+
+.score-label,
+.daily-grade-label {
+    color: #fff !important;
 }

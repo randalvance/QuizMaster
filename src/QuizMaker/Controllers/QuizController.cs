@@ -210,7 +210,7 @@ namespace QuizMaker.Controllers
             return View(viewModel);
         }
 
-        public async Task<IActionResult> TakeQuiz(Guid sessionId)
+        public async Task<IActionResult> TakeQuiz(Guid sessionId, bool hideNext = false)
         {
             Session session = await GetSessionForTakingQuizAsync(sessionId);
 
@@ -227,6 +227,8 @@ namespace QuizMaker.Controllers
             {
                 await TakeQuizAsync(viewModel);
             }
+
+            ViewBag.HideNext = hideNext && session.SessionStatus == SessionStatus.Done;
 
             return View(viewModel);
         }
@@ -384,7 +386,14 @@ namespace QuizMaker.Controllers
         {
             // Hack, we'll probably find a better way of updating existing session answers
             var sessionAnswers = appDbContext.SessionAnswers.Where(x => x.SessionId == viewModel.SessionId);
-            var lastChronologicalOrder = (await sessionAnswers.FirstOrDefaultAsync())?.AnswerChronology + 1 ?? 0;
+            var firstSessionAnswer = await sessionAnswers.FirstOrDefaultAsync();
+
+            if (firstSessionAnswer != null)
+            {
+                viewModel.IsRetry = true;
+            }
+
+            var lastChronologicalOrder = firstSessionAnswer?.AnswerChronology + 1 ?? 0;
             var sessionAnswersToDelete = sessionAnswers.Where(x => x.AnswerChronology > 0);
             appDbContext.SessionAnswers.RemoveRange(sessionAnswersToDelete);
             await appDbContext.SaveChangesAsync();
@@ -480,7 +489,7 @@ namespace QuizMaker.Controllers
                     x =>
                     {
                         var quiz = x.Answer.Question.QuizQuestions.SingleOrDefault(q => q.QuestionId == x.Answer.QuestionId).Quiz;
-
+                        
                         return new SessionAnswerViewModel()
                         {
                             AnswerId = x.AnswerId,
@@ -489,12 +498,15 @@ namespace QuizMaker.Controllers
                             QuizInstructions = quiz.Instructions,
                             QuestionText = x.Answer.Question.QuestionText,
                             CorrectAnswer = x.Answer.AnswerText,
-                            UserAnswer = x.UserAnswer
+                            UserAnswer = x.UserAnswer,
+                            IsCorrect = x.IsCorrect,
+                            AnswersOrderImportant = quiz.AnswersOrderImportant
                         };
                     }).GroupBy(savm => savm.QuizId).Select(g => new ShowAnswersQuizGroupViewModel()
                     {
                         QuizTitle = g.FirstOrDefault().QuizTitle,
                         QuizIndustructions = g.FirstOrDefault().QuizInstructions,
+                        AnswersOrderImportant = g.FirstOrDefault().AnswersOrderImportant,
                         Answers = g.ToList()
                     }).ToList(),
                 HideNext = hideNext
@@ -589,14 +601,17 @@ namespace QuizMaker.Controllers
                     sessionAnswers.Add(sessionAnswer);
                     
                     if (string.IsNullOrWhiteSpace(answer.UserAnswer) ||
-                        (quiz.AnswersOrderImportant && answer.CorrectAnswer.ToLower() != answer.UserAnswer.ToLower().Trim()) ||
-                        (!correctAnswers.Exists(a => a.ToLower() == answer.UserAnswer.ToLower().Trim())))
+                        (quiz.AnswersOrderImportant && answer.CorrectAnswer.ToLower().Trim() != answer.UserAnswer.ToLower().Trim()) ||
+                        (!correctAnswers.Exists(a => a.ToLower().Trim() == answer.UserAnswer.ToLower().Trim())))
                     {
                         MarkAnswerAsIncorrect(quiz, answer, sessionAnswer);
                         isCorrect = false;
                     }
+                    else
+                    {
+                        sessionAnswer.IsCorrect = true;
+                    }
                 }
-
                 return isCorrect;
             });
         }
