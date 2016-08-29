@@ -15,5 +15,7 @@ namespace QuizMaster.Models.SessionViewModels
         public string QuestionText { get; set; }
         public string CorrectAnswer { get; set; }
         public string UserAnswer { get; set; }
+        public bool AnswersOrderImportant { get; set; }
+        public bool IsCorrect { get; set; }
     }
 }

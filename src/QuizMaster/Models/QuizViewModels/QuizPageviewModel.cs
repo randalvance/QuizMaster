@@ -16,6 +16,7 @@ namespace QuizMaster.Models.QuizViewModels
         public int RetryAnswerCount { get; set; }
         public int QuizItemCount { get; set; }
         public int QuizOfTheDayNumber { get; set; }
+        public bool IsRetry { get; set; }
         public List<QuizViewModel> Quizes { get; set; }
     }
 }

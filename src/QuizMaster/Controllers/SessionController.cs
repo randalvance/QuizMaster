@@ -68,7 +68,7 @@ namespace QuizMaster.Controllers
                 Sessions = sessions,
                 UserSpecified = userId.HasValue,
                 PassingGrade = passingGrade,
-                QuizesCompleted = await quizService.GetQuizOfTheDaySequenceNumberAsync(User),
+                QuizesCompleted = await quizService.GetQuizOfTheDaySequenceNumberAsync(User) - 1,
                 QuizesPassed = sessions.Count(x => x.GradePercentage >= passingGrade),
                 QuizesFailed = sessions.Count(x => x.GradePercentage < passingGrade),
                 RequiredQuizes = await sessionsSettings.RecommendedSessionCountPerDay

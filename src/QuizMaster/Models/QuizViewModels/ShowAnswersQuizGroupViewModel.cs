@@ -10,6 +10,7 @@ namespace QuizMaster.Models.QuizViewModels
     {
         public string QuizTitle { get; set; }
         public string QuizIndustructions { get; set; }
+        public bool AnswersOrderImportant { get; set; }
         public List<SessionAnswerViewModel> Answers { get; set; }
     }
 }
