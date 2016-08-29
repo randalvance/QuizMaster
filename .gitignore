@@ -251,9 +251,9 @@ paket-files/
 .idea/
 *.sln.iml
 
-/src/QuizMaker/typings
-/src/QuizMaker/wwwroot/lib
-/src/QuizMaker/wwwroot/app/**/*.js
-/src/QuizMaker/wwwroot/app/**/*.map
-/src/QuizMaker/Properties/PublishProfiles/*.ps1
-/src/QuizMaker/Properties/PublishProfiles/*.psm1
+/src/QuizMaster/typings
+/src/QuizMaster/wwwroot/lib
+/src/QuizMaster/wwwroot/app/**/*.js
+/src/QuizMaster/wwwroot/app/**/*.map
+/src/QuizMaster/Properties/PublishProfiles/*.ps1
+/src/QuizMaster/Properties/PublishProfiles/*.psm1

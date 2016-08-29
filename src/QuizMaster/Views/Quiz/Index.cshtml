@@ -1,0 +1,72 @@
+﻿@model QuizListViewModel
+@{
+    Layout = "_LayoutContentPage";
+    ViewBag.Title = "Quizes";
+}
+
+
+<div class="panel panel-default content-wrapper">
+    <div class="panel-body">
+        <p>Click the button below to have the system generate a recommended quiz for you.</p>
+        <a class="btn btn-success" asp-controller="Quiz" asp-action="RecommendedQuiz">Recommended Quiz</a>
+    </div>
+</div>
+
+@if (User.IsInRole(QuizMaster.Data.Constants.IdentityConstants.SuperAdministratorRoleName))
+{
+<a asp-controller="Quiz" asp-action="Add" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span></a>
+<table class="table table-responsive table-bordered list-table">
+    <thead>
+        <tr>
+            <th>Code</th>
+            <th>Title</th>
+            <th>Group</th>
+            <th>Type</th>
+            <th>Question Count</th>
+            <th>Create Date</th>
+            <th>Modify Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var quiz in Model.Quizes)
+        {
+            <tr>
+                <td><a asp-controller="Quiz" asp-action="Detail" asp-route-id="@quiz.QuizId">@quiz.Code</a></td>
+                <td>@quiz.Title</td>
+                <td>@quiz.QuizGroup.Name</td>
+                <td>@quiz.QuizType.ToString()</td>
+                <td>@quiz.QuizQuestions.Count</td>
+                <td>@quiz.CreateDate.ToString("d")</td>
+                <td>@quiz.ModifyDate.ToString("d")</td>
+                <th>
+                    <a style="float: left; margin-right: 10px" asp-controller="Quiz" asp-action="Edit" asp-route-id="@quiz.QuizId"><span class="glyphicon glyphicon-pencil"></span></a>
+
+                    <form style="float: left; margin-right: 10px" asp-controller="Quiz" asp-action="Delete" asp-route-id="@quiz.QuizId" method="post">
+                        <a class="delete-button" href="#"><span class="glyphicon glyphicon-trash"></span></a>
+                    </form>
+
+                    <a title="Take Quiz" style="float: left" asp-controller="Quiz" asp-action="GenerateSession" asp-route-id="@quiz.QuizId"><span class="glyphicon glyphicon-book"></span></a>
+                </th>
+            </tr>
+        }
+    </tbody>
+</table>
+}
+
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+
+            $('.delete-button').click(function (e) {
+                var self = $(this);
+                var form = self.parent('form');
+                if (confirm("Are you sure you want to delete?")) {
+                    form.submit();
+                }
+
+                e.preventDefault();
+            });
+        });
+    </script>
+}

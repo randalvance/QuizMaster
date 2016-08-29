@@ -1,0 +1,29 @@
+﻿@model IEnumerable<QuizMaster.Models.Quiz>
+@{
+    ViewBag.Title = "Manage Question";
+}
+<div class="manage-question-wrapper">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Quiz ID</th>
+                <th>Title</th>
+                <th>Instructions</th>
+                <th>Sessions</th>
+                <th>Questions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var quiz in Model)
+            {
+                <tr>
+                    <td>@quiz.QuizId</td>
+                    <td>@quiz.Title</td>
+                    <td>@quiz.Instructions</td>
+                    <td>@quiz.QuizSessions.Count</td>
+                    <td>@quiz.Questions.Count</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
