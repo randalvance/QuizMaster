@@ -9,6 +9,7 @@ namespace QuizMaster.Models
     {
         NotStarted = 0,
         Ongoing = 1,
-        Done = 2
+        Done = 2,
+        Skipped = 3
     }
 }

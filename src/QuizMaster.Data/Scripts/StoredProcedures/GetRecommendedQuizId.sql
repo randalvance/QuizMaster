@@ -35,13 +35,22 @@ BEGIN
 		WHERE S.SessionId IS NOT NULL AND S.ApplicationUserId = @UserId
 	) X
 	-- Do not repeat if taken today
-	WHERE X.QuizId NOT IN (
-		SELECT QS.QuizId FROM QuizSessions QS
+	WHERE NOT EXISTS (
+		SELECT 1 FROM QuizSessions QS
 		JOIN Sessions S ON S.SessionId = QS.SessionId
-		WHERE S.ApplicationUserId = @UserId AND
-			(@TodayMonth = DATEPART(MONTH, S.DateCompleted) AND
-			 @TodayDay = DATEPART(DAY, S.DateCompleted) AND
-			 @TodayYear = DATEPART(YEAR, S.DateCompleted))
+		WHERE QS.QuizId = X.QuizId AND S.ApplicationUserId = @UserId AND S.ApplicationUserId = @UserId AND
+		((
+				S.SessionStatus IN (1 /* Not Started */, 3 /* Skipped */) AND
+				@TodayMonth = DATEPART(MONTH, S.DateTaken) AND
+				@TodayDay = DATEPART(DAY, S.DateTaken) AND
+				@TodayYear = DATEPART(YEAR, S.DateTaken)
+		) OR
+		(
+				S.SessionStatus = 2 /* Done */ AND
+				@TodayMonth = DATEPART(MONTH, S.DateCompleted) AND
+				@TodayDay = DATEPART(DAY, S.DateCompleted) AND
+				@TodayYear = DATEPART(YEAR, S.DateCompleted)
+		))
 	)
 	ORDER BY X.TypeIndicator, X.Score, X.DateCompleted, NEWID()
 END

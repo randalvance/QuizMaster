@@ -33,14 +33,18 @@
             Congrats! You answered all correctly. You can take another quiz by clicking the button below.
         </div>
     }
+    
+    @if (!Model.InitialLoad && (ViewBag.HideNext == null || !ViewBag.HideNext))
+    {
+        <a asp-controller="Quiz" asp-action="GenerateSession" asp-route-numQuizTaken="@Model.QuizOfTheDayNumber" asp-route-fromTaker="true" class="btn btn-primary">Take Next Quiz</a>
+    }
+    @if (Model.InitialLoad && (ViewBag.HideNext == null || !ViewBag.HideNext))
+    {
+        <a asp-controller="Quiz" asp-action="SkipSession" asp-route-sessionId="@Model.SessionId" class="btn btn-danger">Skip This</a>
+    }
 
     @if (!Model.InitialLoad)
     {
-        @if (ViewBag.HideNext == null || !ViewBag.HideNext)
-        {
-            <a asp-controller="Quiz" asp-action="GenerateSession" asp-route-numQuizTaken="@Model.QuizOfTheDayNumber" asp-route-fromTaker="true" class="btn btn-primary">Take Next Quiz</a>
-        }
-
         <h3>Your Score</h3>
         <div id="score-container" class="row">
             <div id="first-score-container" class="score-display col-md-2 col-sm-4 col-xs-6">
