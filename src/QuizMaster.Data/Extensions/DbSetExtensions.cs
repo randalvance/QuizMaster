@@ -46,4 +46,4 @@ namespace QuizMaker.Data.Extensions
         }
     }
 }
-}
+

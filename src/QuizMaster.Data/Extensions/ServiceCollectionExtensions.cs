@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using QuizMaker.Data.Core;
 using QuizMaster.Data.Services;
 using QuizMaster.Data.Settings;
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QuizMaker.Data.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -8,7 +9,7 @@ namespace QuizMaker.Data.Abstractions
 {
     interface IRepository<T, K> where T : class
     {
-        Task<IEnumerable<T>> ListAsync(IListOptions<T> listOptions = null);
+        Task<IQueryable<T>> ListAsync(ListOptions<T> listOptions = null);
         Task<T> RetrieveAsync(K id);
         Task AddAsync(T entity);
         Task UpdateAsync(T entity);
