@@ -3,6 +3,7 @@ using QuizMaker.Data.Abstractions;
 using QuizMaker.Data.Core;
 using QuizMaker.Data.Extensions;
 using QuizMaster.Data;
+using QuizMaster.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,7 +45,9 @@ namespace QuizMaker.Data.Repositories
         {
             return Task.Run(() =>
             {
-                return (listOptions != null ? (DbSet<T>)includesCreator.ApplyIncludes(DbSet) : DbSet).Find(DbContext, id);
+                var result = listOptions != null ? includesCreator.ApplyIncludes(DbSet, listOptions.Includes.ToArray()) : DbSet;
+
+                return result.Find(id);
             });
         }
 

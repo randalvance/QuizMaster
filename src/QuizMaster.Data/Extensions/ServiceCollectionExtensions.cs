@@ -22,8 +22,10 @@ namespace QuizMaster.Data.Extensions
 
         public static void AddApplicationRepositories(this IServiceCollection services)
         {
+            services.AddScoped<QuizRepository>();
             services.AddScoped<QuizCategoryRepository>();
             services.AddScoped<QuizGroupRepository>();
+            services.AddScoped<SessionAnswerRepository>();
             services.AddScoped<SessionRepository>();
         }
     }

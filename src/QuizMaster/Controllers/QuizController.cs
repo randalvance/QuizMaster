@@ -47,6 +47,7 @@ namespace QuizMaster.Controllers
             this.quizSettings = quizSettings;
             this.sessionAnswerRepository = sessionAnswerRepository;
             this.sessionSettings = sessionSettings;
+            this.sessionRepository = sessionRepository;
             this.userManager = userManager;
         }
 
@@ -136,12 +137,12 @@ namespace QuizMaster.Controllers
                 QuizType = quiz.QuizType,
                 QuizGroupId = quiz.QuizGroupId,
                 QuizGroupName = quiz.QuizGroup.Name,
-                Questions = quiz.QuizQuestions.Select(x =>
+                Questions = quiz.QuizQuestions?.Select(x =>
                     new QuizEditQuestionViewModel
                     {
                         QuestionId = x.QuestionId,
                         QuestionText = x.Question.QuestionText,
-                        AnswerData = x.Question.Answers.Select(a => a.AnswerText)
+                        AnswerData = x.Question.Answers.Select(a => a.AnswerText)?
                         .Aggregate((a1, a2) => a1 + ":" + a2)
                     }).ToList(),
                 Groups = quizGroupRepository.RetrieveAll().ToList()
