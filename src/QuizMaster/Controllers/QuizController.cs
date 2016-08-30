@@ -356,6 +356,16 @@ namespace QuizMaster.Controllers
 
             Quiz quiz = GetQuizForEditing(viewModel, quizChoices, isAdd);
 
+            if (!isAdd)
+            {
+                quiz.Code = viewModel.Code;
+                quiz.Title = viewModel.Title;
+                quiz.Instructions = viewModel.Instructions;
+                quiz.QuizType = viewModel.QuizType;
+                quiz.QuizGroupId = viewModel.QuizGroupId;
+                quiz.ModifyDate = DateTime.Now;
+            }
+
             UpdateChoices(isAdd, quizChoices, quiz);
 
             await ProcessQuestionsForEditingAsync(viewModel.Questions, quiz, isAdd);

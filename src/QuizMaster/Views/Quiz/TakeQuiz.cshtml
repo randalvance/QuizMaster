@@ -76,7 +76,7 @@
         <input type="hidden" asp-for="@Model.Quizes[i].Instructions" />
 
         <h3>@Model.Quizes[i].Title</h3>
-        <p>@Model.Quizes[i].Instructions</p>
+        <p>@Html.Raw(Model.Quizes[i].Instructions)</p>
         <div>
         @for (int q = 0; q < Model.Quizes[i].Questions.Count; q++)
         {
