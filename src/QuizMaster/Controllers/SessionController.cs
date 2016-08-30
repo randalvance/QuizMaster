@@ -1,13 +1,18 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using QuizMaker.Data.Core;
+using QuizMaker.Data.Repositories;
 using QuizMaster.Data;
 using QuizMaster.Data.Constants;
 using QuizMaster.Data.Services;
 using QuizMaster.Data.Settings;
+using QuizMaster.Models;
 using QuizMaster.Models.SessionViewModels;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace QuizMaster.Controllers
@@ -15,23 +20,23 @@ namespace QuizMaster.Controllers
     [Authorize]
     public class SessionController : Controller
     {
-        private ApplicationDbContext appDbContext;
-        private QuizService quizService;
         private ApplicationSettingService appSettingsService;
-        private SessionSettings sessionsSettings;
+        private QuizService quizService;
         private QuizSettings quizSettings;
+        private SessionRepository sessionRepository;
+        private SessionSettings sessionsSettings;
 
-        public SessionController(ApplicationDbContext appDbContext,
-                                 ApplicationSettingService appSettingsService,
+        public SessionController(ApplicationSettingService appSettingsService,
                                  QuizService quizService,
-                                 SessionSettings sessionsSettings,
-                                 QuizSettings quizSettings)
+                                 QuizSettings quizSettings,
+                                 SessionRepository sessionRepository,
+                                 SessionSettings sessionsSettings)
         {
-            this.appDbContext = appDbContext;
             this.appSettingsService = appSettingsService;
             this.quizService = quizService;
-            this.sessionsSettings = sessionsSettings;
             this.quizSettings = quizSettings;
+            this.sessionsSettings = sessionsSettings;
+            this.sessionRepository = sessionRepository;
         }
 
         public async Task<IActionResult> Index(Guid? userId = null)
@@ -43,23 +48,23 @@ namespace QuizMaster.Controllers
                 throw new UnauthorizedAccessException("You are not an administrator.");
             }
 
-            var sessions = await appDbContext.Sessions
-                            .Include(s => s.ApplicationUser)
-                            .Include(s => s.QuizSessions).ThenInclude(qs => qs.Quiz)
-                            .Where(s => (s.DateCompleted.HasValue ? s.DateCompleted.Value : s.DateTaken).Date == DateTime.Now.Date &&
-                                         ((userId.HasValue && s.ApplicationUserId == userId) || isAdmin))
-                            .OrderBy(s => s.SessionStatus).ThenByDescending(s => (s.DateCompleted.HasValue ? s.DateCompleted.Value : s.DateTaken))
-                            .Select(s => new SessionViewModel()
-                            {
-                                SessionId = s.SessionId,
-                                UserName = s.ApplicationUser.UserName,
-                                SessionStatus = s.SessionStatus.ToString(),
-                                DateTaken = s.DateTaken,
-                                DateCompleted = s.DateCompleted,
-                                CorrectAnswerCount = s.CorrectAnswerCount,
-                                QuizItemCount = s.QuizItemCount,
-                                QuizTitle = string.Join("|", s.QuizSessions.Select(qss => qss.Quiz.Title).ToArray())
-                            }).ToListAsync();
+            var sessions = await sessionRepository.List(new ListOptions<Session>(
+                s => s.ApplicationUser,
+                s => s.QuizSessions[0].Quiz
+            )).Where(s => (s.DateCompleted.HasValue ? s.DateCompleted.Value : s.DateTaken).Date == DateTime.Now.Date &&
+                            ((userId.HasValue && s.ApplicationUserId == userId) || isAdmin))
+            .OrderBy(s => s.SessionStatus).ThenByDescending(s => (s.DateCompleted.HasValue ? s.DateCompleted.Value : s.DateTaken))
+            .Select(s => new SessionViewModel()
+            {
+                SessionId = s.SessionId,
+                UserName = s.ApplicationUser.UserName,
+                SessionStatus = s.SessionStatus.ToString(),
+                DateTaken = s.DateTaken,
+                DateCompleted = s.DateCompleted,
+                CorrectAnswerCount = s.CorrectAnswerCount,
+                QuizItemCount = s.QuizItemCount,
+                QuizTitle = string.Join("|", s.QuizSessions.Select(qss => qss.Quiz.Title).ToArray())
+            }).ToListAsync();
 
             var passingGrade = await quizSettings.PassingGrade;
 

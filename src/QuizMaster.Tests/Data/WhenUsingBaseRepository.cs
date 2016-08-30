@@ -11,25 +11,13 @@ using Xunit;
 
 namespace QuizMaster.Tests.Data
 {
-    public class WhenUsingBaseRepository
+    public class WhenUsingBaseRepository : BaseDataTest
     {
-        private static DbContextOptions<ApplicationDbContext> CreateNewContextOptions()
-        {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkInMemoryDatabase()
-                .BuildServiceProvider();
-
-            var builder = new DbContextOptionsBuilder<ApplicationDbContext>();
-            builder.UseInMemoryDatabase()
-                   .UseInternalServiceProvider(serviceProvider);
-
-            return builder.Options;
-        }
-
         [Fact]
         public async void ShouldAddANewEntity()
         {
-            var options = CreateNewContextOptions();
+            var options = CreateNewOptions();
+
             using (var dbContext = new ApplicationDbContext(options))
             {
                 var repository = new MockRepository(dbContext);

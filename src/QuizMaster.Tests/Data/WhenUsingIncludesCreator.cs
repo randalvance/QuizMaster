@@ -1,21 +1,14 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
 using QuizMaker.Data.Core;
 using QuizMaster.Data;
 using QuizMaster.Models;
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace QuizMaster.Tests.Data
 {
-    public class WhenUsingIncludesCreator
+    public class WhenUsingIncludesCreator : BaseDataTest
     {
         private IncludesCreator<Session> sessionIncludesCreator;
 
@@ -49,44 +42,47 @@ namespace QuizMaster.Tests.Data
         }
 
         [Fact]
-        public void ShouldIncludeNavigationProperty()
+        public void ShouldIncludeNavigationProperties()
         {
-            var serviceProvider = GetServiceProvider();
-            var dbContext = serviceProvider.GetService<ApplicationDbContext>();
+            var options = CreateNewOptions();
 
-            var session = sessionIncludesCreator.ApplyIncludes(dbContext.Sessions, 
-                s => s.QuizSessions[0].Quiz,
-                s => s.SessionAnswers[0].Answer,
-                s => s.SessionQuestions,
-                s => s.ApplicationUser).FirstOrDefault(s => s.SessionStatus == SessionStatus.Done);
+            using (var dbContext = new ApplicationDbContext(options))
+            {
+                var session = new Session() { SessionStatus = SessionStatus.Done };
+                var quiz = new Quiz() { Code = "TEST_QUIZ" };
+                var question = new Question { QuestionText = "Test Question" };
+                var answer = new Answer() { AnswerText = "Test Answer", Question = question };
+                var sessionAnswer = new SessionAnswer() { Answer = answer, IsCorrect = true, AnswerChronology = 0, UserAnswer = "Test Answer" };
+                var sessionQuestion = new SessionQuestion { Question = question, DisplayOrder = 1 };
+                var quizSession = new QuizSession() { Quiz = quiz };
+                var applicationUser = new ApplicationUser { UserName = "TEST_USER" };
 
-            Assert.NotEmpty(session.QuizSessions);
-            Assert.All(session.QuizSessions, s => Assert.NotNull(s.Quiz));
+                session.QuizSessions.Add(quizSession);
+                session.SessionAnswers.Add(sessionAnswer);
+                session.SessionQuestions.Add(sessionQuestion);
+                session.ApplicationUser = applicationUser;
 
-            Assert.NotEmpty(session.SessionAnswers);
-            Assert.All(session.SessionAnswers, s => Assert.NotNull(s.Answer));
+                dbContext.Sessions.Add(session);
+                dbContext.SaveChanges();
+            };
 
-            Assert.NotEmpty(session.SessionQuestions);
-            Assert.NotNull(session.ApplicationUser);
-        }
+            using (var dbContext = new ApplicationDbContext(options))
+            {
+                var session = sessionIncludesCreator.ApplyIncludes(dbContext.Sessions,
+                    s => s.QuizSessions[0].Quiz,
+                    s => s.SessionAnswers[0].Answer,
+                    s => s.SessionQuestions,
+                    s => s.ApplicationUser).FirstOrDefault(s => s.SessionStatus == SessionStatus.Done);
 
-        private IServiceProvider GetServiceProvider()
-        {
-            var host = new WebHostBuilder();
-            var env = host.GetSetting("environment");
+                Assert.NotEmpty(session.QuizSessions);
+                Assert.All(session.QuizSessions, s => Assert.NotNull(s.Quiz));
 
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json");
+                Assert.NotEmpty(session.SessionAnswers);
+                Assert.All(session.SessionAnswers, s => Assert.NotNull(s.Answer));
 
-            var configuration = builder.Build();
-
-            var services = new ServiceCollection();
-
-            services.AddDbContext<ApplicationDbContext>(options =>
-               options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
-
-            return services.BuildServiceProvider();
+                Assert.NotEmpty(session.SessionQuestions);
+                Assert.NotNull(session.ApplicationUser);
+            }
         }
     }
 }

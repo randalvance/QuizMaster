@@ -24,11 +24,11 @@ namespace QuizMaker.Data.Repositories
             includesCreator = new IncludesCreator<T>();
         }
 
-        public Task<IQueryable<T>> ListAsync(ListOptions<T> listOptions = null)
+        public IQueryable<T> List(ListOptions<T> listOptions = null)
         {
             var result = includesCreator.ApplyIncludes(DbSet, listOptions.Includes.ToArray());
 
-            return Task.FromResult(result);
+            return result;
         }
 
         public Task<T> RetrieveAsync(Guid id)

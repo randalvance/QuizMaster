@@ -49,6 +49,7 @@ namespace QuizMaster
                 .AddDefaultTokenProviders();
 
             services.AddApplicationServices();
+            services.AddApplicationRepositories();
             services.AddApplicationSettings();
 
             services.AddMvc().AddJsonOptions(options =>

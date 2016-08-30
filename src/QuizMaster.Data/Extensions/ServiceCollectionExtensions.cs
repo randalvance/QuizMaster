@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using QuizMaker.Data.Core;
+using QuizMaker.Data.Repositories;
 using QuizMaster.Data.Services;
 using QuizMaster.Data.Settings;
 
@@ -9,14 +10,19 @@ namespace QuizMaster.Data.Extensions
     {
         public static void AddApplicationServices(this IServiceCollection services)
         {
-            services.AddTransient<QuizService>();
-            services.AddTransient<ApplicationSettingService>();
+            services.AddScoped<QuizService>();
+            services.AddScoped<ApplicationSettingService>();
         }
 
         public static void AddApplicationSettings(this IServiceCollection services)
         {
-            services.AddSingleton<SessionSettings>();
-            services.AddSingleton<QuizSettings>();
+            services.AddScoped<SessionSettings>();
+            services.AddScoped<QuizSettings>();
+        }
+
+        public static void AddApplicationRepositories(this IServiceCollection services)
+        {
+            services.AddScoped<SessionRepository>();
         }
     }
 }

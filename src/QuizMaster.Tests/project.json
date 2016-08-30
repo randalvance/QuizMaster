@@ -5,12 +5,7 @@
     "xunit": "2.2.0-beta2-build3300",
     "QuizMaster.Models": "1.0.0-*",
     "QuizMaster.Data": "1.0.0-*",
-    "Microsoft.AspNetCore.Hosting": "1.0.0",
-    "Microsoft.EntityFrameworkCore": "1.0.0",
     "Microsoft.EntityFrameworkCore.InMemory": "1.0.0",
-    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0",
-    "Microsoft.Extensions.Configuration": "1.0.0",
-    "Microsoft.Extensions.Configuration.Json":  "1.0.0",
     "dotnet-test-xunit": "2.2.0-preview2-build1029"
   },
   "frameworks": {
