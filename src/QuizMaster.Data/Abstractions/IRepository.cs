@@ -9,12 +9,15 @@ namespace QuizMaker.Data.Abstractions
 {
     interface IRepository<T, K> where T : class
     {
-        IQueryable<T> List(ListOptions<T> listOptions = null);
-        Task<T> RetrieveAsync(K id);
+        IQueryable<T> RetrieveAll(ListOptions<T> listOptions = null);
+        Task<IQueryable<T>> RetrievAllAsync(ListOptions<T> listOptions = null);
+        Task<T> RetrieveAsync(K id, ListOptions<T> listOptions = null);
         Task AddAsync(T entity);
+        Task AddRangeAsync(IEnumerable<T> entitiesToAdd);
         Task UpdateAsync(T entity);
         Task RemoveAsync(K id);
         Task RemoveAsync(T entity);
+        Task RemoveRangeAsync(IEnumerable<T> entitiesToRemove);
         Task CommitAsync();
     }
 }

@@ -65,7 +65,7 @@
 
                 <td>@session.UserName</td>
             }
-            <td><a asp-controller="Quiz" asp-action="ShowAnswers" asp-route-sessionId="@session.SessionId" asp-route-hideNext="true" asp-route-firstAnswers="true">@session.QuizTitle</a></td>
+            <td><a asp-controller="Session" asp-action="ShowAnswers" asp-route-sessionId="@session.SessionId" asp-route-hideNext="true" asp-route-firstAnswers="true">@session.QuizTitle</a></td>
             <td>@session.SessionStatus</td>
             <td>@session.CorrectAnswerCount</td>
             <td class="hidden-xs">@session.QuizItemCount</td>

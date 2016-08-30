@@ -27,8 +27,7 @@
                 <th>
                     <a style="float: left; margin-right: 10px" asp-controller="QuizGroup" asp-action="Edit" asp-route-id="@group.QuizGroupId"><span class="glyphicon glyphicon-pencil"></span></a>
 
-                    <form style="float: left; margin-right: 10px" asp-controller="QuizGroup" asp-action="Delete" method="post">
-                        <input type="hidden" name="groupId" value="@group.QuizGroupId" />
+                    <form style="float: left; margin-right: 10px" asp-controller="QuizGroup" asp-action="Delete" asp-route-id="@group.QuizGroupId" method="post">
                         <a class="delete-button" href="#"><span class="glyphicon glyphicon-trash"></span></a>
                     </form>
 

@@ -6,6 +6,6 @@
     <div class="panel-body">
         <h2>Recommended Quiz</h2>
         <h3>@Model.Title</h3>
-        <a class="btn btn-success" asp-action="GenerateSession" asp-route-id="@Model.QuizId">Start Quiz</a>
+        <a class="btn btn-success" asp-controller="Session" asp-action="GenerateSession" asp-route-id="@Model.QuizId">Start Quiz</a>
     </div>
 </div>

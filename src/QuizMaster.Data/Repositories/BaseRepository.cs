@@ -4,6 +4,7 @@ using QuizMaker.Data.Core;
 using QuizMaker.Data.Extensions;
 using QuizMaster.Data;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -24,18 +25,26 @@ namespace QuizMaker.Data.Repositories
             includesCreator = new IncludesCreator<T>();
         }
 
-        public IQueryable<T> List(ListOptions<T> listOptions = null)
+        public IQueryable<T> RetrieveAll(ListOptions<T> listOptions = null)
         {
-            var result = includesCreator.ApplyIncludes(DbSet, listOptions.Includes.ToArray());
+            var result = listOptions != null ? includesCreator.ApplyIncludes(DbSet, listOptions.Includes.ToArray()) : DbSet;
 
             return result;
         }
 
-        public Task<T> RetrieveAsync(Guid id)
+        public Task<IQueryable<T>> RetrievAllAsync(ListOptions<T> listOptions = null)
         {
             return Task.Run(() =>
             {
-                return DbSet.Find(id);
+                return RetrieveAll(listOptions);
+            });
+        }
+
+        public Task<T> RetrieveAsync(Guid id, ListOptions<T> listOptions = null)
+        {
+            return Task.Run(() =>
+            {
+                return (listOptions != null ? (DbSet<T>)includesCreator.ApplyIncludes(DbSet) : DbSet).Find(DbContext, id);
             });
         }
 
@@ -44,6 +53,14 @@ namespace QuizMaker.Data.Repositories
             return Task.Run(() =>
             {
                 DbSet.Add(entity);
+            });
+        }
+
+        public Task AddRangeAsync(IEnumerable<T> entitiesToAdd)
+        {
+            return Task.Run(() =>
+            {
+                DbSet.AddRange(entitiesToAdd);
             });
         }
 
@@ -59,6 +76,14 @@ namespace QuizMaker.Data.Repositories
         {
             var entity = await RetrieveAsync(id);
             await RemoveAsync(entity);
+        }
+
+        public Task RemoveRangeAsync(IEnumerable<T> entitiesToRemove)
+        {
+            return Task.Run(() =>
+            {
+                DbSet.RemoveRange(entitiesToRemove);
+            });
         }
 
         public Task UpdateAsync(T entity)

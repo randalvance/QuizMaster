@@ -25,8 +25,7 @@
                 <th>
                     <a style="float: left; margin-right: 10px" asp-controller="QuizCategory" asp-action="Edit" asp-route-id="@category.QuizCategoryId"><span class="glyphicon glyphicon-pencil"></span></a>
 
-                    <form style="float: left" asp-controller="QuizCategory" asp-action="Delete" method="post">
-                        <input type="hidden" name="categoryId" value="@category.QuizCategoryId" />
+                    <form style="float: left" asp-controller="QuizCategory" asp-action="Delete" asp-route-id="@category.QuizCategoryId" method="post">
                         <a class="delete-button" href="#"><span class="glyphicon glyphicon-trash"></span></a>
                     </form>
                 </th>
