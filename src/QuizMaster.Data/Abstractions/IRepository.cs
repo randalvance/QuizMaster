@@ -11,7 +11,7 @@ namespace QuizMaker.Data.Abstractions
     {
         IQueryable<T> RetrieveAll(ListOptions<T> listOptions = null);
         Task<IQueryable<T>> RetrievAllAsync(ListOptions<T> listOptions = null);
-        Task<T> RetrieveAsync(K id, ListOptions<T> listOptions = null);
+        //Task<T> RetrieveAsync(K id, ListOptions<T> listOptions = null);
         Task AddAsync(T entity);
         Task AddRangeAsync(IEnumerable<T> entitiesToAdd);
         Task UpdateAsync(T entity);

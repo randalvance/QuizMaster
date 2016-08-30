@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using QuizMaster.Data;
 using System;
 using System.Linq;
@@ -9,38 +10,16 @@ namespace QuizMaker.Data.Extensions
 {
     public static class DbSetExtensions
     {
-        public static TEntity Find<TEntity>(this DbSet<TEntity> set, DbContext context, params object[] keyValues) where TEntity : class
+        public static TEntity Find<TEntity>(this IQueryable<TEntity> set, object id) where TEntity : class
         {
-            var entityType = context.Model.FindEntityType(typeof(TEntity));
-            var key = entityType.FindPrimaryKey();
-
-            var entries = context.ChangeTracker.Entries<TEntity>();
-
-            var i = 0;
-            foreach (var property in key.Properties)
-            {
-                entries = entries.Where(e => e.Property(property.Name).CurrentValue == keyValues[i]);
-                i++;
-            }
-
-            var entry = entries.FirstOrDefault();
-            if (entry != null)
-            {
-                // Return the local object if it exists.
-                return entry.Entity;
-            }
-
-            // TODO: Build the real LINQ Expression
-            // set.Where(x => x.Id == keyValues[0]);
             var parameter = Expression.Parameter(typeof(TEntity), "x");
             var query = set.Where((Expression<Func<TEntity, bool>>)
                 Expression.Lambda(
                     Expression.Equal(
                         Expression.Property(parameter, $"{typeof(TEntity).Name}Id"),
-                        Expression.Constant(keyValues[0])),
+                        Expression.Constant(id)),
                     parameter));
-
-            // Look in the database
+            
             return query.FirstOrDefault();
         }
     }
