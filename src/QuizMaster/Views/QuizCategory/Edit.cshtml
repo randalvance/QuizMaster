@@ -8,9 +8,10 @@
     <input type="hidden" asp-for="@Model.QuizCategoryId" />
     <div class="form-group">
         <label asp-for="@Model.Code">Code:</label>
-        @if (Model.ReadOnly)
+        @if (Model.ReadOnly || Model.QuizCategoryId != Guid.Empty)
         {
             <div>@Model.Code</div>
+            <input type="hidden" asp-for="@Model.Code" class="form-control" />
         }
         else
         {

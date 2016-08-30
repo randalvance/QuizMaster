@@ -26,7 +26,7 @@ namespace QuizMaker.Data.Repositories
 
         public IQueryable<T> List(ListOptions<T> listOptions = null)
         {
-            var result = includesCreator.ApplyIncludes(DbSet, listOptions.Includes.ToArray());
+            var result = listOptions != null ? includesCreator.ApplyIncludes(DbSet, listOptions.Includes.ToArray()) : DbSet;
 
             return result;
         }
@@ -35,7 +35,7 @@ namespace QuizMaker.Data.Repositories
         {
             return Task.Run(() =>
             {
-                return DbSet.Find(id);
+                return DbSet.Find(DbContext, id);
             });
         }
 

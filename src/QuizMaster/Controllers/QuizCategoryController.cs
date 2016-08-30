@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using QuizMaker.Data.Repositories;
 using QuizMaster.Data;
 using QuizMaster.Data.Constants;
 using QuizMaster.Models;
@@ -13,18 +14,18 @@ namespace QuizMaster.Controllers
     [Authorize(Roles = IdentityConstants.SuperAdministratorRoleName)]
     public class QuizCategoryController : Controller
     {
-        private ApplicationDbContext appDbContext;
+        private QuizCategoryRepository quizCategoryRepository;
 
-        public QuizCategoryController(ApplicationDbContext appDbContext)
+        public QuizCategoryController(QuizCategoryRepository quizCategoryRepository)
         {
-            this.appDbContext = appDbContext;
+            this.quizCategoryRepository = quizCategoryRepository;
         }
 
         public IActionResult Index()
         {
             var viewModel = new QuizCategoryListViewModel()
             {
-                Categories = appDbContext.QuizCategories.ToList()
+                Categories = quizCategoryRepository.List().ToList()
             };
 
             return View(viewModel);
@@ -37,9 +38,10 @@ namespace QuizMaster.Controllers
             return View("Edit", viewModel);
         }
 
-        public IActionResult Detail(Guid id)
+        public async Task<IActionResult> Detail(Guid id)
         {
-            var quizCategory = appDbContext.QuizCategories.SingleOrDefault(x => x.QuizCategoryId == id);
+            var quizCategory = await quizCategoryRepository.RetrieveAsync(id);
+
             var viewModel = new QuizCategoryEditViewModel()
             {
                 QuizCategoryId = id,
@@ -52,9 +54,9 @@ namespace QuizMaster.Controllers
             return View("Edit", viewModel);
         }
 
-        public IActionResult Edit(Guid id)
+        public async Task<IActionResult> Edit(Guid id)
         {
-            var quizCategory = appDbContext.QuizCategories.SingleOrDefault(x => x.QuizCategoryId == id);
+            var quizCategory = await quizCategoryRepository.RetrieveAsync(id);
             var viewModel = new QuizCategoryEditViewModel()
             {
                 QuizCategoryId = id,
@@ -80,8 +82,8 @@ namespace QuizMaster.Controllers
                 Description = viewModel.Description
             };
 
-            appDbContext.QuizCategories.Add(quizCategory);
-            await appDbContext.SaveChangesAsync();
+            await quizCategoryRepository.AddAsync(quizCategory);
+            await quizCategoryRepository.CommitAsync();
 
             return RedirectToAction("Index", new { addSuccess = true });
         }
@@ -93,21 +95,21 @@ namespace QuizMaster.Controllers
             {
                 return View(viewModel);
             }
-            var quizCategory = appDbContext.QuizCategories.SingleOrDefault(x => x.QuizCategoryId == viewModel.QuizCategoryId);
-            quizCategory.Code = viewModel.Code;
+            var quizCategory = await quizCategoryRepository.RetrieveAsync(viewModel.QuizCategoryId);
             quizCategory.Name = viewModel.Name;
             quizCategory.Description = viewModel.Description;
-            await appDbContext.SaveChangesAsync();
+            await quizCategoryRepository.UpdateAsync(quizCategory);
+            await quizCategoryRepository.CommitAsync();
 
             return RedirectToAction("Index", new { addSuccess = true });
         }
 
         [HttpPost]
-        public async Task<IActionResult> Delete(Guid categoryId)
+        public async Task<IActionResult> Delete(Guid id)
         {
-            var quizCategory = appDbContext.QuizCategories.SingleOrDefault(x => x.QuizCategoryId == categoryId);
-            appDbContext.Remove(quizCategory);
-            await appDbContext.SaveChangesAsync();
+            var quizCategory = await quizCategoryRepository.RetrieveAsync(id);
+            await quizCategoryRepository.RemoveAsync(quizCategory);
+            await quizCategoryRepository.CommitAsync();
 
             return RedirectToAction("Index", new { deleteSuccess = true });
         }
