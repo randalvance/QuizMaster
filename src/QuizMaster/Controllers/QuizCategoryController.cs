@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using QuizMaker.Data.Repositories;
+using QuizMaster.Controllers.BaseControllers;
 using QuizMaster.Data.Constants;
+using QuizMaster.Data.Repositories;
 using QuizMaster.Models;
 using QuizMaster.Models.QuizViewModels;
 using System;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 namespace QuizMaster.Controllers
 {
     [Authorize(Roles = IdentityConstants.SuperAdministratorRoleName)]
-    public class QuizCategoryController : Controller
+    public class QuizCategoryController : ToastController
     {
         private QuizCategoryRepository quizCategoryRepository;
 
@@ -26,6 +27,8 @@ namespace QuizMaster.Controllers
             {
                 Categories = quizCategoryRepository.RetrieveAll().ToList()
             };
+
+            EmbedToastOptions();
 
             return View(viewModel);
         }
@@ -64,6 +67,8 @@ namespace QuizMaster.Controllers
                 Description = quizCategory.Description
             };
 
+            ToastSuccess($"{quizCategory.Name} has been updated.");
+
             return View(viewModel);
         }
 
@@ -83,8 +88,10 @@ namespace QuizMaster.Controllers
 
             await quizCategoryRepository.AddAsync(quizCategory);
             await quizCategoryRepository.CommitAsync();
+            
+            ToastSuccess($"{quizCategory.Name} has been added.");
 
-            return RedirectToAction("Index", new { addSuccess = true });
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
@@ -100,7 +107,7 @@ namespace QuizMaster.Controllers
             await quizCategoryRepository.UpdateAsync(quizCategory);
             await quizCategoryRepository.CommitAsync();
 
-            return RedirectToAction("Index", new { addSuccess = true });
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
@@ -110,7 +117,9 @@ namespace QuizMaster.Controllers
             await quizCategoryRepository.RemoveAsync(quizCategory);
             await quizCategoryRepository.CommitAsync();
 
-            return RedirectToAction("Index", new { deleteSuccess = true });
+            ToastSuccess($"{quizCategory.Name} has been deleted.");
+
+            return RedirectToAction("Index");
         }
     }
 }

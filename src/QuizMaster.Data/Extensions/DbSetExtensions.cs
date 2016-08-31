@@ -6,7 +6,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace QuizMaker.Data.Extensions
+namespace QuizMaster.Data.Extensions
 {
     public static class DbSetExtensions
     {

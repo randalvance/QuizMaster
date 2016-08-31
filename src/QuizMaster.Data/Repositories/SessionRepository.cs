@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using QuizMaster.Data;
 
-namespace QuizMaker.Data.Repositories
+namespace QuizMaster.Data.Repositories
 {
     public class SessionRepository : BaseRepository<Session>
     {

@@ -1,5 +1,5 @@
-﻿using QuizMaker.Data.Repositories;
-using QuizMaster.Data;
+﻿using QuizMaster.Data;
+using QuizMaster.Data.Repositories;
 using QuizMaster.Models;
 using System;
 using System.Linq;
