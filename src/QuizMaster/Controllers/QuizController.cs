@@ -263,7 +263,7 @@ namespace QuizMaster.Controllers
                 quiz.QuizChoices = new SelectList(quizObj.QuizChoices, "Choice", "Choice");
             }
 
-            if (session.SessionStatus == SessionStatus.Ongoing && isPost)
+            if ((session.SessionStatus == SessionStatus.Ongoing || session.SessionStatus == SessionStatus.Skipped) && isPost)
             {
                 session.CorrectAnswerCount = correctAnswerCount;
                 session.SessionStatus = SessionStatus.Done;
