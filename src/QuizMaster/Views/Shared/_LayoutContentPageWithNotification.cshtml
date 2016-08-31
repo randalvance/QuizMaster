@@ -1,0 +1,14 @@
+﻿@{
+    Layout = "_LayoutContentPage";
+}
+@RenderBody()
+
+
+@section head {
+    <link href="~/lib/toastr/build/toastr.min.css" rel="stylesheet" />
+}
+
+@section scripts {
+    @RenderSection("scripts", false)
+    <script src="~/lib/toastr/build/toastr.min.js"></script>
+}
