@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using QuizMaker.Data.Core;
+using QuizMaker.Data.Repositories;
 using QuizMaster.Data;
 using QuizMaster.Data.Services;
 using QuizMaster.Data.Settings;
@@ -20,44 +22,52 @@ namespace QuizMaster.Controllers
     [Authorize]
     public class QuizController : Controller
     {
-        private readonly ApplicationDbContext appDbContext;
+        private readonly QuizGroupRepository quizGroupRepository;
+        private readonly QuizRepository quizRepository;
         private readonly QuizService quizService;
-        private readonly SessionSettings sessionSettings;
         private readonly QuizSettings quizSettings;
-
+        private readonly SessionAnswerRepository sessionAnswerRepository;
+        private readonly SessionSettings sessionSettings;
+        private readonly SessionRepository sessionRepository;
         private readonly UserManager<ApplicationUser> userManager;
 
         public QuizController(
-            ApplicationDbContext appDbContext,
-            UserManager<ApplicationUser> userManager,
+            QuizGroupRepository quizGroupRepository,
+            QuizRepository quizRepository,
             QuizService quizService,
-            SessionSettings sessionSettings,
-            QuizSettings quizSettings)
+            QuizSettings quizSettings,
+            SessionAnswerRepository sessionAnswerRepository,
+            SessionSettings sessionSettings, 
+            SessionRepository sessionRepository,
+            UserManager<ApplicationUser> userManager)
         {
-            this.appDbContext = appDbContext;
-            this.userManager = userManager;
+            this.quizGroupRepository = quizGroupRepository;
+            this.quizRepository = quizRepository;
             this.quizService = quizService;
-            this.sessionSettings = sessionSettings;
             this.quizSettings = quizSettings;
+            this.sessionAnswerRepository = sessionAnswerRepository;
+            this.sessionSettings = sessionSettings;
+            this.sessionRepository = sessionRepository;
+            this.userManager = userManager;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             var viewModel = new QuizListViewModel()
             {
-                Quizes = appDbContext.Quizes
-                        .Include(x => x.QuizGroup)
-                        .Include(x => x.QuizQuestions)
-                        .OrderByDescending(x => x.ModifyDate)
-                        .ToList()
+                Quizes = await quizRepository.RetrieveAll(new ListOptions<Quiz>(
+                        x => x.QuizGroup,
+                        x => x.QuizQuestions))
+                        .OrderByDescending(x => x.ModifyDate).ToListAsync()
             };
 
             return View(viewModel);
         }
 
-        public IActionResult Add(Guid groupId, int questionCount = 10, string returnUrl = "")
+        public async Task<IActionResult> Add(Guid groupId, int questionCount = 10, string returnUrl = "")
         {
-            var quizGroup = appDbContext.QuizGroups.Include(x => x.Quizes).SingleOrDefault(x => x.QuizGroupId == groupId);
+            var quizGroup = await quizGroupRepository.RetrieveAsync(groupId, new ListOptions<QuizGroup>(
+                        x => x.Quizes));
             var quizCount = quizGroup?.Quizes.Count;
             var firstQuiz = quizGroup?.Quizes.FirstOrDefault();
             var quizInstructions = firstQuiz != null ? firstQuiz.Instructions : string.Empty;
@@ -68,7 +78,7 @@ namespace QuizMaster.Controllers
                 Title = quizGroup != null ? $"{quizGroup.Name} {quizCount + 1}" : string.Empty,
                 Instructions = quizInstructions,
                 Questions = Enumerable.Range(0, questionCount).Select(i => new QuizEditQuestionViewModel() { }).ToList(), // Hardcoded to 10 questions for now
-                Groups = appDbContext.QuizGroups.ToList(),
+                Groups = quizGroupRepository.RetrieveAll().ToList(),
                 QuizGroupId = groupId,
                 QuizType = QuizType.FillInTheBlanks,
                 ReturnUrl = returnUrl
@@ -83,14 +93,13 @@ namespace QuizMaster.Controllers
             return await EditOrAddQuizAsync(viewModel, true);
         }
 
-        public IActionResult Detail(Guid id, string returnUrl)
+        public async Task<IActionResult> Detail(Guid id, string returnUrl)
         {
-            var quiz = appDbContext.Quizes
-                .Include(x => x.QuizGroup)
-                .Include(x => x.QuizChoices)
-                .Include(x => x.QuizQuestions)
-                .ThenInclude(x => x.Question).ThenInclude(x => x.Answers)
-                .SingleOrDefault(q => q.QuizId == id);
+            var quiz = 
+                await quizRepository.RetrieveAsync(id, new ListOptions<Quiz>(
+                    x => x.QuizGroup,
+                    x => x.QuizChoices,
+                    x => x.QuizQuestions[0].Question.Answers));
 
             var viewModel = new QuizEditViewModel()
             {
@@ -112,12 +121,12 @@ namespace QuizMaster.Controllers
             return View("Edit", viewModel);
         }
 
-        public IActionResult Edit(Guid id, string returnUrl)
+        public async Task<IActionResult> Edit(Guid id, string returnUrl)
         {
-            var quiz = appDbContext.Quizes
-                .Include(x => x.QuizGroup)
-                .Include(x => x.QuizQuestions).ThenInclude(x => x.Question).ThenInclude(x => x.Answers)
-                .SingleOrDefault(q => q.QuizId == id);
+            var quiz =
+                await quizRepository.RetrieveAsync(id, new ListOptions<Quiz>(
+                    x => x.QuizGroup,
+                    x => x.QuizQuestions[0].Question.Answers));
 
             var viewModel = new QuizEditViewModel()
             {
@@ -128,15 +137,15 @@ namespace QuizMaster.Controllers
                 QuizType = quiz.QuizType,
                 QuizGroupId = quiz.QuizGroupId,
                 QuizGroupName = quiz.QuizGroup.Name,
-                Questions = quiz.QuizQuestions.Select(x =>
+                Questions = quiz.QuizQuestions?.Select(x =>
                     new QuizEditQuestionViewModel
                     {
                         QuestionId = x.QuestionId,
                         QuestionText = x.Question.QuestionText,
-                        AnswerData = x.Question.Answers.Select(a => a.AnswerText)
+                        AnswerData = x.Question.Answers.Select(a => a.AnswerText)?
                         .Aggregate((a1, a2) => a1 + ":" + a2)
                     }).ToList(),
-                Groups = appDbContext.QuizGroups.ToList()
+                Groups = quizGroupRepository.RetrieveAll().ToList()
             };
 
             ViewBag.ReturnUrl = returnUrl;
@@ -152,9 +161,10 @@ namespace QuizMaster.Controllers
 
         public async Task<IActionResult> RecommendedQuiz()
         {
-            Guid recommendedQuizId = await GetRecommendedQuizId();
+            var user = await userManager.FindByNameAsync(User.Identity.Name);
+            Guid recommendedQuizId = await quizService.GetRecommendedQuizAsync(user.Id);
 
-            var quiz = appDbContext.Quizes.SingleOrDefault(x => x.QuizId == recommendedQuizId);
+            var quiz = await quizRepository.RetrieveAsync(recommendedQuizId);
 
             if (quiz == null)
             {
@@ -162,68 +172,6 @@ namespace QuizMaster.Controllers
             }
 
             var viewModel = new RecommendedQuizViewModel() { QuizId = quiz.QuizId, Title = quiz.Title };
-
-            return View(viewModel);
-        }
-
-        public async Task<IActionResult> GenerateSession(Guid? id = null, int numQuizTaken = 0, bool fromTaker = false)
-        {
-            Guid quizId = id.HasValue ? id.Value : await GetRecommendedQuizId();
-
-            var quiz = appDbContext.Quizes.Include(x => x.QuizQuestions).SingleOrDefault(x => x.QuizId == quizId);
-
-            if (quiz == null)
-            {
-                return RedirectToAction("NoMoreQuiz");
-            }
-
-            var user = await userManager.FindByNameAsync(User.Identity.Name);
-            var session = new Session()
-            {
-                ApplicationUserId = user.Id,
-                CorrectAnswerCount = 0,
-                QuizItemCount = quiz.QuizQuestions.Count,
-                SessionStatus = SessionStatus.Ongoing,
-                QuizSessions = new List<QuizSession>()
-                {
-                    new QuizSession()
-                    {
-                        QuizId = quizId
-                    }
-                }
-            };
-
-            appDbContext.Sessions.Add(session);
-            await appDbContext.SaveChangesAsync();
-
-            if (fromTaker)
-            {
-                int requiredSessionsPerDay = await sessionSettings.RecommendedSessionCountPerDay;
-
-                if (requiredSessionsPerDay == numQuizTaken)
-                {
-                    return RedirectToAction("Index", "Session", new { userId = user.Id });
-                }
-            }
-            return RedirectToAction("TakeQuiz", "Quiz", new { sessionId = session.SessionId });
-        }
-
-        public async Task<IActionResult> SkipSession(Guid sessionId)
-        {
-            var session = appDbContext.Sessions.SingleOrDefault(s => s.SessionId == sessionId);
-            session.SessionStatus = SessionStatus.Skipped;
-            await appDbContext.SaveChangesAsync();
-
-            return await GenerateSession();
-        }
-
-        public IActionResult ShowAnswers(Guid sessionId, bool hideNext, bool firstAnswers)
-        {
-            var session = GetSessionForShowingAnswer(sessionId);
-
-            var maxChronology = session.SessionAnswers != null && session.SessionAnswers.Any() ? session.SessionAnswers.Max(x => x.AnswerChronology) : 0;
-
-            var viewModel = GetShowAnswersViewModel(session, hideNext, firstAnswers, maxChronology);
 
             return View(viewModel);
         }
@@ -239,7 +187,7 @@ namespace QuizMaster.Controllers
 
             QuizPageViewModel viewModel = GetQuizPageViewModel(session);
 
-            RandomizeQuestionDisplayOrders(viewModel, session);
+            await RandomizeQuestionDisplayOrdersAsync(viewModel, session);
             SortQuestions(viewModel);
 
             viewModel.QuizOfTheDayNumber = await quizService.GetQuizOfTheDaySequenceNumberAsync(User);
@@ -265,9 +213,9 @@ namespace QuizMaster.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var quiz = appDbContext.Quizes.SingleOrDefault(x => x.QuizId == id);
-            appDbContext.Remove(quiz);
-            await appDbContext.SaveChangesAsync();
+            var quiz = await quizRepository.RetrieveAsync(id);
+            await quizRepository.RemoveAsync(quiz);
+            await quizRepository.CommitAsync();
 
             return RedirectToAction("Index", new { deleteSuccess = true });
         }
@@ -280,7 +228,7 @@ namespace QuizMaster.Controllers
         private async Task TakeQuizAsync(QuizPageViewModel viewModel, bool isPost = true)
         {
             int lastChronologicalOrder = await GetLastChronologicalOrder(viewModel.SessionId);
-            viewModel.IsRetry = appDbContext.SessionAnswers.Any(x => x.SessionId == viewModel.SessionId);
+            viewModel.IsRetry = sessionAnswerRepository.RetrieveAll().Any(x => x.SessionId == viewModel.SessionId);
 
             if (isPost)
             {
@@ -290,8 +238,8 @@ namespace QuizMaster.Controllers
             int correctAnswerCount = 0;
 
             var sessionAnswers = new List<SessionAnswer>();
-            var session = await appDbContext.Sessions.FirstOrDefaultAsync(s => s.SessionId == viewModel.SessionId);
-            var quizes = appDbContext.Quizes.Include(x => x.QuizChoices).AsQueryable();
+            var session = await sessionRepository.RetrieveAsync(viewModel.SessionId);
+            var quizes = quizRepository.RetrieveAll(new ListOptions<Quiz>(x => x.QuizChoices)).AsQueryable();
 
             viewModel.QuizItemCount = 0;
             viewModel.CorrectAnswerCount = session.CorrectAnswerCount;
@@ -315,7 +263,7 @@ namespace QuizMaster.Controllers
                 quiz.QuizChoices = new SelectList(quizObj.QuizChoices, "Choice", "Choice");
             }
 
-            if (session.SessionStatus == SessionStatus.Ongoing && isPost)
+            if ((session.SessionStatus == SessionStatus.Ongoing || session.SessionStatus == SessionStatus.Skipped) && isPost)
             {
                 session.CorrectAnswerCount = correctAnswerCount;
                 session.SessionStatus = SessionStatus.Done;
@@ -325,27 +273,19 @@ namespace QuizMaster.Controllers
             }
 
             viewModel.RetryAnswerCount = correctAnswerCount;
-
-            appDbContext.SessionAnswers.AddRange(sessionAnswers);
-
+            
             if (isPost)
             {
-                await appDbContext.SaveChangesAsync();
+                await sessionAnswerRepository.AddRangeAsync(sessionAnswers);
+                await sessionAnswerRepository.CommitAsync();
             }
 
             viewModel.InitialLoad = false;
         }
-
-        private async Task<Guid> GetRecommendedQuizId()
-        {
-            var user = await userManager.FindByNameAsync(User.Identity.Name);
-            var recommendedQuizId = await quizService.GetRecommendedQuizAsync(user.Id);
-            return recommendedQuizId;
-        }
         
         private async Task<IActionResult> EditOrAddQuizAsync(QuizEditViewModel viewModel, bool isAdd)
         {
-            viewModel.Groups = await appDbContext.QuizGroups.ToListAsync();
+            viewModel.Groups = quizGroupRepository.RetrieveAll().ToList();
 
             if (!ModelState.IsValid)
             {
@@ -354,7 +294,17 @@ namespace QuizMaster.Controllers
 
             var quizChoices = await ParseQuizChoicesAsync(viewModel.QuizChoices);
 
-            Quiz quiz = GetQuizForEditing(viewModel, quizChoices, isAdd);
+            Quiz quiz = await GetQuizForEditingAsync(viewModel, quizChoices, isAdd);
+
+            if (!isAdd)
+            {
+                quiz.Code = viewModel.Code;
+                quiz.Title = viewModel.Title;
+                quiz.Instructions = viewModel.Instructions;
+                quiz.QuizType = viewModel.QuizType;
+                quiz.QuizGroupId = viewModel.QuizGroupId;
+                quiz.ModifyDate = DateTime.Now;
+            }
 
             UpdateChoices(isAdd, quizChoices, quiz);
 
@@ -362,12 +312,12 @@ namespace QuizMaster.Controllers
 
             if (isAdd)
             {
-                appDbContext.Quizes.Add(quiz);
+                await quizRepository.AddAsync(quiz);
             }
 
             try
             {
-                appDbContext.SaveChanges();
+                await quizRepository.CommitAsync();
             }
             catch (Exception ex)
             {
@@ -420,50 +370,31 @@ namespace QuizMaster.Controllers
         private async Task ClearSessionAnswersAsync(QuizPageViewModel viewModel)
         {
             // Hack, we'll probably find a better way of updating existing session answers
-            var sessionAnswers = appDbContext.SessionAnswers.Where(x => x.SessionId == viewModel.SessionId);
+            var sessionAnswers = (await sessionAnswerRepository.RetrievAllAsync()).Where(x => x.SessionId == viewModel.SessionId);
             var sessionAnswersToDelete = sessionAnswers.Where(x => x.AnswerChronology > 0);
-            appDbContext.SessionAnswers.RemoveRange(sessionAnswersToDelete);
-            await appDbContext.SaveChangesAsync();
+            await sessionAnswerRepository.RemoveRangeAsync(sessionAnswersToDelete);
+            await sessionAnswerRepository.CommitAsync();
         }
 
         private async Task<int> GetLastChronologicalOrder(Guid sessionId)
         {
-            var firstSessionAnswer = await appDbContext.SessionAnswers.FirstOrDefaultAsync(x => x.SessionId == sessionId);
+            var firstSessionAnswer = await sessionAnswerRepository.RetrieveAll().FirstOrDefaultAsync(x => x.SessionId == sessionId);
             var lastChronologicalOrder = firstSessionAnswer?.AnswerChronology + 1 ?? 0;
             return lastChronologicalOrder;
         }
         
         private async Task<Session> GetSessionForTakingQuizAsync(Guid sessionId)
         {
-            return await appDbContext.Sessions.Include(x => x.SessionAnswers)
-                .Include(x => x.QuizSessions)
-                    .ThenInclude(x => x.Quiz)
-                    .ThenInclude(x => x.QuizQuestions)
-                    .ThenInclude(x => x.Question)
-                    .ThenInclude(x => x.Answers)
-                    .ThenInclude(x => x.SessionAnswers)
-                .Include(x => x.QuizSessions)
-                    .ThenInclude(x => x.Quiz)
-                    .ThenInclude(x => x.QuizChoices)
-                .Include(x => x.SessionQuestions)
+            return await sessionRepository.RetrieveAll(new ListOptions<Session>(
+                x => x.SessionAnswers,
+                x => x.QuizSessions[0].Quiz.QuizQuestions[0].Question.Answers[0].SessionAnswers,
+                x => x.QuizSessions[0].Quiz.QuizChoices,
+                x => x.SessionQuestions))
                 .Where(x => x.SessionId == sessionId)
                 .FirstOrDefaultAsync();
         }
-
-        private Session GetSessionForShowingAnswer(Guid sessionId)
-        {
-            return appDbContext.Sessions
-                    .Include(s => s.SessionAnswers)
-                    .Include(s => s.SessionQuestions)
-                    .Include(s => s.QuizSessions)
-                        .ThenInclude(s => s.Quiz)
-                        .ThenInclude(s => s.QuizQuestions)
-                        .ThenInclude(s => s.Question)
-                        .ThenInclude(sa => sa.Answers).ToList()
-                .SingleOrDefault(x => x.SessionId == sessionId);
-        }
-
-        private Quiz GetQuizForEditing(QuizEditViewModel viewModel, List<QuizChoice> quizChoices, bool isAdd)
+        
+        private async Task<Quiz> GetQuizForEditingAsync(QuizEditViewModel viewModel, List<QuizChoice> quizChoices, bool isAdd)
         {
             return isAdd ? new Quiz()
             {
@@ -476,12 +407,9 @@ namespace QuizMaster.Controllers
                 QuizType = viewModel.QuizType,
                 QuizQuestions = new List<QuizQuestion>(),
                 QuizChoices = !string.IsNullOrWhiteSpace(viewModel.QuizChoices) ? quizChoices : new List<QuizChoice>(),
-            } : appDbContext.Quizes
-                    .Include(x => x.QuizChoices)
-                    .Include(x => x.QuizQuestions)
-                    .ThenInclude(x => x.Question)
-                    .ThenInclude(x => x.Answers)
-                    .SingleOrDefault(x => x.QuizId == viewModel.QuizId);
+            } : await quizRepository.RetrieveAsync(viewModel.QuizId, new ListOptions<Quiz>(
+                    x => x.QuizChoices,
+                    x => x.QuizQuestions[0].Question.Answers));
         }
 
         private static QuizPageViewModel GetQuizPageViewModel(Session session)
@@ -518,7 +446,7 @@ namespace QuizMaster.Controllers
             return viewModel;
         }
 
-        private void RandomizeQuestionDisplayOrders(QuizPageViewModel viewModel, Session session)
+        private async Task RandomizeQuestionDisplayOrdersAsync(QuizPageViewModel viewModel, Session session)
         {
             var randomizer = new Random();
             
@@ -552,59 +480,7 @@ namespace QuizMaster.Controllers
                 }
             }
 
-            appDbContext.SaveChanges();
-        }
-
-        private ShowAnswersPageViewModel GetShowAnswersViewModel(Session session, bool hideNext, bool firstAnswers, int maxChronology)
-        {
-            int displayOrder = 1;
-
-            Func<Question, int> getDisplayOrder = question =>
-            {
-                var sessionQuestion = session.SessionQuestions.SingleOrDefault(q => q.QuestionId == question.QuestionId);
-
-                return sessionQuestion != null ? sessionQuestion.DisplayOrder : displayOrder++;
-            };
-
-            Func<Answer, ShowAnswersAnswerViewModel> getAnswerViewModel = answer =>
-            {
-                var sessionAnswer = session.SessionAnswers
-                    .Where(x => firstAnswers || maxChronology == 0 ? x.AnswerChronology == 0 : x.AnswerChronology != 0)
-                    .FirstOrDefault(sa => sa.AnswerId == answer.AnswerId);
-
-                return sessionAnswer != null ? new ShowAnswersAnswerViewModel()
-                {
-                    AnswerId = answer.AnswerId,
-                    IsCorrect = sessionAnswer.IsCorrect,
-                    CorrectAnswer = answer.AnswerText,
-                    UserAnswer = sessionAnswer.UserAnswer
-                } : new ShowAnswersAnswerViewModel();
-            };
-
-            var viewModel = new ShowAnswersPageViewModel()
-            {
-                SessionId = session.SessionId,
-                Quizes = session.QuizSessions
-                        .Select(qs => qs.Quiz)
-                        .Select(q => new ShowAnswersQuizViewModel()
-                        {
-                            QuizId = q.QuizId,
-                            QuizTitle = q.Title,
-                            QuizInstructions = q.Instructions,
-                            AnswersOrderImportant = q.AnswersOrderImportant,
-                            Questions = q.QuizQuestions.Select(qq => new ShowAnswersQuestionViewModel()
-                            {
-                                QuestionId = qq.QuestionId,
-                                QuestionText = qq.Question.QuestionText,
-                                DisplayOrder = getDisplayOrder(qq.Question),
-                                Answers = qq.Question.Answers.Select(answer => getAnswerViewModel(answer)).ToList()
-                            }).OrderBy(question => question.DisplayOrder).ToList()
-                        }).ToList()
-            };
-
-            ViewBag.HideNext = hideNext;
-
-            return viewModel;
+            await sessionRepository.CommitAsync();
         }
 
         private Task<int> ProcessQuestionsAsync(Guid sessionId, int lastChronologicalOrder,

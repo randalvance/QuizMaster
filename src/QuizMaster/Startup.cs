@@ -5,15 +5,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Serialization;
-using QuizMaster.Models;
 using QuizMaster.Data;
+using QuizMaster.Data.Extensions;
+using QuizMaster.Models;
 using System;
 using System.IO;
-using QuizMaster.Data.Services;
-using Microsoft.Extensions.Options;
-using QuizMaster.Data.Settings;
-using QuizMaster.Data.Extensions;
 
 namespace QuizMaster
 {
@@ -51,6 +49,7 @@ namespace QuizMaster
                 .AddDefaultTokenProviders();
 
             services.AddApplicationServices();
+            services.AddApplicationRepositories();
             services.AddApplicationSettings();
 
             services.AddMvc().AddJsonOptions(options =>

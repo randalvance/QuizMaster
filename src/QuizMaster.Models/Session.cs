@@ -15,6 +15,8 @@ namespace QuizMaster.Models
             DateTaken = DateTime.Now;
             SessionStatus = SessionStatus.NotStarted;
             QuizSessions = new List<QuizSession>();
+            SessionQuestions = new List<SessionQuestion>();
+            SessionAnswers = new List<SessionAnswer>();
         }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

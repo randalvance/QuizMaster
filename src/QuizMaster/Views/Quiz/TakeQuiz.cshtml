@@ -36,11 +36,11 @@
     
     @if (!Model.InitialLoad && (ViewBag.HideNext == null || !ViewBag.HideNext))
     {
-        <a asp-controller="Quiz" asp-action="GenerateSession" asp-route-numQuizTaken="@Model.QuizOfTheDayNumber" asp-route-fromTaker="true" class="btn btn-primary">Take Next Quiz</a>
+        <a asp-controller="Session" asp-action="GenerateSession" asp-route-numQuizTaken="@Model.QuizOfTheDayNumber" asp-route-fromTaker="true" class="btn btn-primary">Take Next Quiz</a>
     }
     @if (Model.InitialLoad && (ViewBag.HideNext == null || !ViewBag.HideNext))
     {
-        <a asp-controller="Quiz" asp-action="SkipSession" asp-route-sessionId="@Model.SessionId" class="btn btn-danger">Skip This</a>
+        <a asp-controller="Session" asp-action="SkipSession" asp-route-sessionId="@Model.SessionId" class="btn btn-danger">Skip This</a>
     }
 
     @if (!Model.InitialLoad)
@@ -76,7 +76,7 @@
         <input type="hidden" asp-for="@Model.Quizes[i].Instructions" />
 
         <h3>@Model.Quizes[i].Title</h3>
-        <p>@Model.Quizes[i].Instructions</p>
+        <p>@Html.Raw(Model.Quizes[i].Instructions)</p>
         <div>
         @for (int q = 0; q < Model.Quizes[i].Questions.Count; q++)
         {
@@ -131,7 +131,7 @@
 
         @if (!Model.InitialLoad && Model.Quizes[i].IncorrectAnswers.Any())
         {
-        <a asp-controller="Quiz" asp-action="ShowAnswers" asp-route-sessionId="@Model.SessionId" class="btn btn-danger pull-right">Show Answer</a>
+        <a asp-controller="Session" asp-action="ShowAnswers" asp-route-sessionId="@Model.SessionId" class="btn btn-danger pull-right">Show Answer</a>
         }
     </div>
        

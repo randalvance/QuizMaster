@@ -44,7 +44,7 @@
         <label asp-for="@Model.Instructions">Instructions:</label>
         @if (Model.ReadOnly)
         {
-            <div>@Model.Instructions</div>
+            <div>@Html.Raw(Model.Instructions)</div>
         }
         else
         {

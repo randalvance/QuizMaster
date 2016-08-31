@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace QuizMaster.Models.QuizViewModels
+namespace QuizMaster.Models.SessionViewModels
 {
     public class ShowAnswersPageViewModel
     {
