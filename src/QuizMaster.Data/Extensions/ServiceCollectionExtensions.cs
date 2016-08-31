@@ -1,13 +1,25 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using QuizMaker.Data.Core;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using QuizMaker.Data.Repositories;
+using QuizMaster.Data;
 using QuizMaster.Data.Services;
 using QuizMaster.Data.Settings;
+using System;
 
-namespace QuizMaster.Data.Extensions
+namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
+        public static void AddDataRelatedServices(this IServiceCollection services, string connectionString, IdentityBuilder identityBuilder)
+        {
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(connectionString));
+
+            identityBuilder
+                .AddEntityFrameworkStores<ApplicationDbContext, Guid>()
+                .AddDefaultTokenProviders();
+        }
+
         public static void AddApplicationServices(this IServiceCollection services)
         {
             services.AddScoped<QuizService>();
@@ -22,6 +34,7 @@ namespace QuizMaster.Data.Extensions
 
         public static void AddApplicationRepositories(this IServiceCollection services)
         {
+            services.AddScoped<ApplicationSettingRepository>();
             services.AddScoped<QuizRepository>();
             services.AddScoped<QuizCategoryRepository>();
             services.AddScoped<QuizGroupRepository>();

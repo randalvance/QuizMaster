@@ -86,24 +86,26 @@ namespace QuizMaster.Data.Extensions
         {
             var initialSettings = appDbContext.ApplicationSettings.ToList();
 
-            if (initialSettings.FirstOrDefault(x => x.Name == "Sessions.RecommendedSessionCountPerDay") == null)
+            if (initialSettings.FirstOrDefault(x => x.Key == "Sessions.RecommendedSessionCountPerDay") == null)
             {
                 ApplicationSetting setting = new ApplicationSetting()
                 {
                     ApplicationSettingValueType = ApplicationSettingValueType.Int,
-                    Name = "Sessions.RecommendedSessionCountPerDay",
+                    Key = "Sessions.RecommendedSessionCountPerDay",
+                    Name = "Recommend Sessions Per Day",
                     Value = "15"
                 };
 
                 appDbContext.ApplicationSettings.Add(setting);
             }
 
-            if (initialSettings.FirstOrDefault(x => x.Name == "Quiz.PassingGrade") == null)
+            if (initialSettings.FirstOrDefault(x => x.Key == "Quiz.PassingGrade") == null)
             {
                 ApplicationSetting setting = new ApplicationSetting()
                 {
                     ApplicationSettingValueType = ApplicationSettingValueType.Double,
-                    Name = "Quiz.PassingGrade",
+                    Key = "Quiz.PassingGrade",
+                    Name = "Passing Grade",
                     Value = "70"
                 };
 

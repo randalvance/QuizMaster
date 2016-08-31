@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using QuizMaster.Models;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace QuizMaster.Data.Services
@@ -13,38 +12,38 @@ namespace QuizMaster.Data.Services
         {
         }
 
-        public async Task<string> GetStringValueAsync(string name)
+        public async Task<string> GetStringValueAsync(string key)
         {
-            return (await GetValueAsync(name)).ToString();
+            return (await GetValueAsync(key)).ToString();
         }
 
-        public async Task<int> GetIntValueAsync(string name)
+        public async Task<int> GetIntValueAsync(string key)
         {
-            return (int)(await GetValueAsync(name));
+            return (int)(await GetValueAsync(key));
         }
 
-        public async Task<double> GetDoubleValueAsync(string name)
+        public async Task<double> GetDoubleValueAsync(string key)
         {
-            return (double)(await GetValueAsync(name));
+            return (double)(await GetValueAsync(key));
         }
 
-        public async Task<bool> GetBoolValueAsync(string name)
+        public async Task<bool> GetBoolValueAsync(string key)
         {
-            return (bool)(await GetValueAsync(name));
+            return (bool)(await GetValueAsync(key));
         }
 
-        public async Task<Guid> GetGuidValueAsync(string name)
+        public async Task<Guid> GetGuidValueAsync(string key)
         {
-            return (Guid)(await GetValueAsync(name));
+            return (Guid)(await GetValueAsync(key));
         }
 
-        public async Task<object> GetValueAsync(string name)
+        public async Task<object> GetValueAsync(string key)
         {
-            var appSetting = await DbContext.ApplicationSettings.SingleOrDefaultAsync(setting => setting.Name == name);
+            var appSetting = await DbContext.ApplicationSettings.SingleOrDefaultAsync(setting => setting.Key == key);
 
             if (appSetting == null)
             {
-                throw new InvalidOperationException($"The AppSetting {name} cannot be found.");
+                throw new InvalidOperationException($"The AppSetting {key} cannot be found.");
             }
 
             switch(appSetting.ApplicationSettingValueType)

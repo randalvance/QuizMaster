@@ -15,7 +15,8 @@ namespace QuizMaster.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            
+
+            builder.Entity<ApplicationSetting>().HasAlternateKey(x => x.Key).HasName("UQ_ApplicationSetting_Key");
             builder.Entity<ApplicationSetting>().HasAlternateKey(x => x.Name).HasName("UQ_ApplicationSetting_Name");
             builder.Entity<Quiz>().HasAlternateKey(x => x.Code).HasName("UQ_Quiz_Code");
             builder.Entity<QuizCategory>().HasAlternateKey(x => x.Code).HasName("UQ_QuizCategory_Code");
