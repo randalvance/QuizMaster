@@ -16,7 +16,7 @@ var Config = (function () {
     };
 
     return {
-        nodePackagePaths: ["@angular", "bootstrap/dist", "core-js", "jquery", "jquery-validation", "jquery-validation-unobtrusive", "progressbar.js", "reflect-metadata", "rxjs", "systemjs/dist", "zone.js/dist"],
+        nodePackagePaths: ["@angular", "bootstrap/dist", "core-js", "jquery", "jquery-validation", "jquery-validation-unobtrusive", "progressbar.js", "reflect-metadata", "rxjs", "systemjs/dist", "toastr/build", "zone.js/dist"],
         paths: this.paths
     };
 })();
