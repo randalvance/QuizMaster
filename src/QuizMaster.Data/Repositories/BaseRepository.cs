@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using QuizMaker.Data.Abstractions;
-using QuizMaker.Data.Core;
-using QuizMaker.Data.Extensions;
+using QuizMaster.Data.Abstractions;
+using QuizMaster.Data.Core;
+using QuizMaster.Data.Extensions;
 using QuizMaster.Data;
 using QuizMaster.Models;
 using System;
@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace QuizMaker.Data.Repositories
+namespace QuizMaster.Data.Repositories
 {
     public class BaseRepository<T> : IRepository<T, Guid> where T : class
     {

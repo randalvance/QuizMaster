@@ -44,7 +44,7 @@ namespace QuizMaster
             services.AddApplicationServices();
             services.AddApplicationRepositories();
             services.AddApplicationSettings();
-
+            services.AddSession();
             services.AddMvc().AddJsonOptions(options =>
             {
                 // make json property names camelCase
@@ -71,6 +71,8 @@ namespace QuizMaster
             app.UseStaticFiles();
 
             app.UseIdentity();
+
+            app.UseSession();
 
             app.UseMvc(routes =>
             {
