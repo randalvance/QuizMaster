@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using QuizMaker.Data.Repositories;
+using QuizMaster.Data.Repositories;
 using QuizMaster.Models.ApplicationSettingViewModels;
 using System.Linq;
 using System.Threading.Tasks;

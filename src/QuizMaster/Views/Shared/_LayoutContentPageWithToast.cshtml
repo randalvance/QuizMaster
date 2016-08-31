@@ -9,6 +9,10 @@
 }
 
 @section scripts {
-    @RenderSection("scripts", false)
     <script src="~/lib/toastr/build/toastr.min.js"></script>
+    <script src="~/scripts/ToastHelper.js"></script>
+    <script type="text/javascript">
+        ToastHelper.showNotification('@Html.Raw(ViewBag.ToastOptions)');
+    </script>
+    @RenderSection("scripts", false)
 }

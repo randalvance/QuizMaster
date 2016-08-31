@@ -2,13 +2,12 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using QuizMaker.Data.Core;
-using QuizMaker.Data.Repositories;
 using QuizMaster.Data.Constants;
+using QuizMaster.Data.Core;
+using QuizMaster.Data.Repositories;
 using QuizMaster.Data.Services;
 using QuizMaster.Data.Settings;
 using QuizMaster.Models;
-using QuizMaster.Models.QuizViewModels;
 using QuizMaster.Models.SessionViewModels;
 using System;
 using System.Collections.Generic;

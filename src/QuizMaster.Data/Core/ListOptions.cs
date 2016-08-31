@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-namespace QuizMaker.Data.Core
+namespace QuizMaster.Data.Core
 {
     public class ListOptions<T> 
     {

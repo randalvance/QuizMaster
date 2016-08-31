@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using QuizMaker.Data.Core;
-using QuizMaker.Data.Repositories;
+using QuizMaster.Controllers.BaseControllers;
 using QuizMaster.Data.Constants;
+using QuizMaster.Data.Core;
+using QuizMaster.Data.Repositories;
 using QuizMaster.Models;
 using QuizMaster.Models.QuizViewModels;
 using System;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 namespace QuizMaster.Controllers
 {
     [Authorize(Roles = IdentityConstants.SuperAdministratorRoleName)]
-    public class QuizGroupController : Controller
+    public class QuizGroupController : ToastController
     {
         private QuizGroupRepository quizGroupRepository;
         private QuizCategoryRepository quizCategoryRepository;
@@ -31,6 +32,8 @@ namespace QuizMaster.Controllers
             {
                 Groups = quizGroupRepository.RetrieveAll(new ListOptions<QuizGroup>(x => x.QuizCategory)).ToList()
             };
+
+            EmbedToastOptions();
 
             return View(viewModel);
         }
@@ -100,7 +103,9 @@ namespace QuizMaster.Controllers
             await quizGroupRepository.AddAsync(quizGroup);
             await quizGroupRepository.CommitAsync();
 
-            return RedirectToAction("Index", new { addSuccess = true });
+            ToastSuccess($"{quizGroup.Name} has been added.");
+
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
@@ -119,7 +124,9 @@ namespace QuizMaster.Controllers
             await quizGroupRepository.UpdateAsync(quizGroup);
             await quizGroupRepository.CommitAsync();
 
-            return RedirectToAction("Index", new { addSuccess = true });
+            ToastSuccess($"{quizGroup.Name} has been updated.");
+
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
@@ -129,7 +136,9 @@ namespace QuizMaster.Controllers
             await quizGroupRepository.RemoveAsync(quizGroup);
             await quizGroupRepository.CommitAsync();
 
-            return RedirectToAction("Index", new { deleteSuccess = true });
+            ToastSuccess($"{quizGroup.Name} has been deleted.");
+
+            return RedirectToAction("Index");
         }
     }
 }

@@ -10,7 +10,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace QuizMaker.Data.Core
+namespace QuizMaster.Data.Core
 {
     public class IncludesCreator<T> where T : class
     {

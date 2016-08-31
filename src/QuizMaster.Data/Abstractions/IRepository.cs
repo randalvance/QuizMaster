@@ -1,11 +1,11 @@
-﻿using QuizMaker.Data.Core;
+﻿using QuizMaster.Data.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-namespace QuizMaker.Data.Abstractions
+namespace QuizMaster.Data.Abstractions
 {
     interface IRepository<T, K> where T : class
     {

@@ -1,7 +1,7 @@
 ﻿using QuizMaster.Data;
 using QuizMaster.Models;
 
-namespace QuizMaker.Data.Repositories
+namespace QuizMaster.Data.Repositories
 {
     public class QuizRepository : BaseRepository<Quiz>
     {

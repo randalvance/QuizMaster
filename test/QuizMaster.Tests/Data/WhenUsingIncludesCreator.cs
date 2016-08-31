@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using QuizMaker.Data.Core;
 using QuizMaster.Data;
+using QuizMaster.Data.Core;
 using QuizMaster.Models;
 using System.Collections.Generic;
 using System.Linq;

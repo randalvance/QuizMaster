@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using QuizMaker.Data.Repositories;
+using QuizMaster.Data.Repositories;
 using QuizMaster.Data;
 using QuizMaster.Data.Services;
 using QuizMaster.Data.Settings;

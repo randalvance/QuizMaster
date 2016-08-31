@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using QuizMaker.Data.Core;
-using QuizMaker.Data.Repositories;
-using QuizMaster.Data;
+using QuizMaster.Controllers.BaseControllers;
+using QuizMaster.Data.Core;
+using QuizMaster.Data.Repositories;
 using QuizMaster.Data.Services;
 using QuizMaster.Data.Settings;
 using QuizMaster.Models;
@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 namespace QuizMaster.Controllers
 {
     [Authorize]
-    public class QuizController : Controller
+    public class QuizController : ToastController
     {
         private readonly QuizGroupRepository quizGroupRepository;
         private readonly QuizRepository quizRepository;
@@ -60,6 +60,8 @@ namespace QuizMaster.Controllers
                         x => x.QuizQuestions))
                         .OrderByDescending(x => x.ModifyDate).ToListAsync()
             };
+
+            EmbedToastOptions();
 
             return View(viewModel);
         }
@@ -216,8 +218,10 @@ namespace QuizMaster.Controllers
             var quiz = await quizRepository.RetrieveAsync(id);
             await quizRepository.RemoveAsync(quiz);
             await quizRepository.CommitAsync();
+            
+            ToastSuccess($"{quiz.Title} has been deleted.");
 
-            return RedirectToAction("Index", new { deleteSuccess = true });
+            return RedirectToAction("Index");
         }
 
         public IActionResult NoMoreQuiz()
@@ -334,11 +338,22 @@ namespace QuizMaster.Controllers
                 return View("Edit", viewModel);
             }
 
+
+            if (isAdd)
+            {
+                ToastSuccess($"{quiz.Title} has been added.");
+            }
+            else
+            {
+                ToastSuccess($"{quiz.Title} has been updated.");
+            }
+
             if (!string.IsNullOrWhiteSpace(viewModel.ReturnUrl))
             {
                 return Redirect(viewModel.ReturnUrl);
             }
-            return RedirectToAction("Index", new { addSuccess = true });
+
+            return RedirectToAction("Index");
         }
 
         private Task<List<QuizChoice>> ParseQuizChoicesAsync(string quizChoices)

@@ -1,10 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using QuizMaster.Data;
 using QuizMaster.Models;
-using System.Linq;
 using System.Threading.Tasks;
 
-namespace QuizMaker.Data.Repositories
+namespace QuizMaster.Data.Repositories
 {
     public class ApplicationSettingRepository : BaseRepository<ApplicationSetting>
     {
