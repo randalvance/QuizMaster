@@ -1,13 +1,9 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Serialization;
-using QuizMaster.Data;
 using QuizMaster.Data.Extensions;
 using QuizMaster.Models;
 using System;
@@ -41,12 +37,9 @@ namespace QuizMaster
 
             services.Configure<Options.IdentityOptions>(Configuration.GetSection("Identity"));
 
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddIdentity<ApplicationUser, ApplicationRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext, Guid>()
-                .AddDefaultTokenProviders();
+            services.AddDataRelatedServices(Configuration.GetConnectionString("DefaultConnection"),
+                services.AddIdentity<ApplicationUser, ApplicationRole>());
 
             services.AddApplicationServices();
             services.AddApplicationRepositories();
@@ -59,9 +52,7 @@ namespace QuizMaster
             });
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, 
-            ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager,
-            IOptions<Options.IdentityOptions> identityOptions)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider serviceProvider, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
@@ -69,12 +60,13 @@ namespace QuizMaster
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseDatabaseErrorPage();
             }
             else
             {
                 app.UseExceptionHandler("/Home/Error");
             }
+
+            app.UseDatabaseRelatedMiddlewares(env);
 
             app.UseStaticFiles();
 
@@ -89,7 +81,7 @@ namespace QuizMaster
                 routes.MapSpaFallbackRoute("spa-fallback", new { controller = "Home", action = "Index" });
             });
 
-            app.UseAppDatabase(Path.Combine(env.ContentRootPath, "quizes"), dbContext, userManager, roleManager, identityOptions.Value);
+            app.UseAppDatabase(Path.Combine(env.ContentRootPath, "quizes"), serviceProvider);
         }
     }
 }
