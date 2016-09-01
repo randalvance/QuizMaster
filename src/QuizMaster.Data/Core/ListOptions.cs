@@ -11,6 +11,8 @@ namespace QuizMaster.Data.Core
             Includes = includes;
         }
 
+        public int Page { get; set; } = 1;
+        public int ItemsPerPage { get; set; } = 10;
         public IEnumerable<Expression<Func<T, object>>> Includes { get; set; }
     }
 }

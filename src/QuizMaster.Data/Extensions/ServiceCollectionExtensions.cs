@@ -13,7 +13,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static void AddDataRelatedServices(this IServiceCollection services, string connectionString, IdentityBuilder identityBuilder)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(connectionString));
+                options.UseSqlServer(connectionString, opt => opt.UseRowNumberForPaging()));
 
             identityBuilder
                 .AddEntityFrameworkStores<ApplicationDbContext, Guid>()

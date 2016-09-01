@@ -30,6 +30,8 @@ namespace QuizMaster.Data.Repositories
         {
             var result = listOptions != null ? includesCreator.ApplyIncludes(DbSet, listOptions.Includes.ToArray()) : DbSet;
 
+            result = listOptions != null ? result.Skip(listOptions.ItemsPerPage * (listOptions.Page < 0 ? 0 : listOptions.Page - 1)).Take(listOptions.ItemsPerPage) : result;
+
             return result;
         }
 
@@ -100,6 +102,11 @@ namespace QuizMaster.Data.Repositories
         public async Task CommitAsync()
         {
             await DbContext.SaveChangesAsync();
+        }
+
+        public async Task<int> CountAsync()
+        {
+            return await DbSet.CountAsync();
         }
     }
 }

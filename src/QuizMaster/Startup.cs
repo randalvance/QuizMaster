@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -37,6 +38,7 @@ namespace QuizMaster
 
             services.Configure<Options.IdentityOptions>(Configuration.GetSection("Identity"));
 
+            services.AddScoped<IActionContextAccessor, ActionContextAccessor>();
 
             services.AddDataRelatedServices(Configuration.GetConnectionString("DefaultConnection"),
                 services.AddIdentity<ApplicationUser, ApplicationRole>());

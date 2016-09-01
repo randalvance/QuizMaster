@@ -1,0 +1,26 @@
+﻿@model PagedViewModelBase
+@{
+    var controller = ViewContext.RouteData.Values["controller"];
+    var action = ViewContext.RouteData.Values["action"];
+}
+<div class="container-fluid">
+    <div class="row">
+        <ul class="pagination">
+            <li class="@(Model.PageAndSorting.Page == 1 ? "disabled" : "")">
+                <a asp-controller="@controller" asp-action="@action">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <li class="@(Model.PageAndSorting.Page == 1 ? "active" : "")"><a asp-controller="@controller" asp-action="@action">1</a></li>
+            @for (int i = 2; i <= Model.NumberOfPages; i++)
+            {
+                <li class="@(Model.PageAndSorting.Page == i ? "active" : "")"><a asp-controller="@controller" asp-action="@action" asp-route-page="@i">@i</a></li>
+            }
+            <li class="@(Model.PageAndSorting.Page == Model.NumberOfPages ? "disabled" : "")">
+                <a asp-controller="@controller" asp-action="@action" asp-route-page="@Model.NumberOfPages">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>

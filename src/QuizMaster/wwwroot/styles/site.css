@@ -1,8 +1,6 @@
 ﻿body {
     padding-top: 50px;
     padding-bottom: 20px;
-    background-color: black;
-    color: #fff;
 }
 
 /* Wrapping element */
@@ -19,40 +17,6 @@ textarea {
     --max-width: 280px;
 }
 
-a {
-    color: #337ab7;
-}
-
-a:hover, a:focus {
-    color: #3290e4;
-}
-/* Bootstrap Override */
-
-.navbar-inverse,
-.navbar-inverse .navbar-toggle {
-    background-color: #002898;
-}
-
-.navbar-inverse .navbar-brand,
-.navbar-inverse .navbar-nav > li > a,
-.navbar-inverse .btn-link {
-    color: #dedede;
-}
-
-.table > thead > tr > td.success, .table > tbody > tr > td.success, .table > tfoot > tr > td.success, .table > thead > tr > th.success, .table > tbody > tr > th.success, .table > tfoot > tr > th.success, .table > thead > tr.success > td, .table > tbody > tr.success > td, .table > tfoot > tr.success > td, .table > thead > tr.success > th, .table > tbody > tr.success > th, .table > tfoot > tr.success > th {
-    background-color: #97c584;
-    color: #000;
-}
-
-.table > thead > tr > td.danger, .table > tbody > tr > td.danger, .table > tfoot > tr > td.danger, .table > thead > tr > th.danger, .table > tbody > tr > th.danger, .table > tfoot > tr > th.danger, .table > thead > tr.danger > td, .table > tbody > tr.danger > td, .table > tfoot > tr.danger > td, .table > thead > tr.danger > th, .table > tbody > tr.danger > th, .table > tfoot > tr.danger > th
-{
-    background-color: #f5baba;
-}
-
-table.table tbody {
-    background-color: #ccc;
-    color: #000;
-}
 
 /* ============================================== */
 .quiz-wrapper {
@@ -101,9 +65,6 @@ textarea.question-content {
 .content-wrapper,
 .panel {
     margin-top: 20px;
-    background-color: #333;
-    color: #fff;
-    border-color: #666;
 }
 
 .correct-label {
@@ -163,9 +124,4 @@ table.result-for-the-day-tabl, table.result-for-the-day-table tr, table.result-f
 }
 .daily-grade-label {
     font-size: 30px;
-}
-
-.score-label,
-.daily-grade-label {
-    color: #fff !important;
 }

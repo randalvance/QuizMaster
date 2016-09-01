@@ -9,6 +9,7 @@ using QuizMaster.Data.Repositories;
 using QuizMaster.Data.Services;
 using QuizMaster.Data.Settings;
 using QuizMaster.Models;
+using QuizMaster.Models.CoreViewModels;
 using QuizMaster.Models.QuizViewModels;
 using QuizMaster.Models.SessionViewModels;
 using System;
@@ -51,14 +52,18 @@ namespace QuizMaster.Controllers
             this.userManager = userManager;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index([FromQuery]PageAndSortingViewModel pagingAndSorting)
         {
             var viewModel = new QuizListViewModel()
             {
-                Quizes = await quizRepository.RetrieveAll(new ListOptions<Quiz>(
+                Quizes = await quizRepository.RetrieveAll(
+                    new ListOptions<Quiz>(
                         x => x.QuizGroup,
-                        x => x.QuizQuestions))
-                        .OrderByDescending(x => x.ModifyDate).ToListAsync()
+                        x => x.QuizQuestions)
+                    { Page = pagingAndSorting.Page, ItemsPerPage = pagingAndSorting.ItemsPerPage })
+                     .OrderByDescending(x => x.ModifyDate).ToListAsync(),
+                PageAndSorting = pagingAndSorting,
+                TotalItems = await quizRepository.CountAsync()
             };
 
             EmbedToastOptions();

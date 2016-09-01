@@ -14,7 +14,11 @@
 
 @if (User.IsInRole(QuizMaster.Data.Constants.IdentityConstants.SuperAdministratorRoleName))
 {
+
+@await Component.InvokeAsync("Pager", new { viewModel = Model })
+
 <a asp-controller="Quiz" asp-action="Add" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span></a>
+
 <table class="table table-responsive table-bordered list-table">
     <thead>
         <tr>
@@ -52,6 +56,8 @@
         }
     </tbody>
 </table>
+
+@await Component.InvokeAsync("Pager", new { viewModel = Model })
 }
 
 @section scripts {

@@ -143,5 +143,25 @@ namespace QuizMaster.Tests.Data
                 Assert.Equal("Updated Instructions", updatedQuiz.Instructions);
             }
         }
+
+        [Fact]
+        public async void ShouldReturnCorrectCount()
+        {
+            var options = CreateNewOptions();
+
+            using (var dbContext = new ApplicationDbContext(options))
+            {
+                dbContext.Sessions.Add(new Session());
+                dbContext.Sessions.Add(new Session());
+                dbContext.Sessions.Add(new Session());
+                dbContext.SaveChanges();
+            }
+
+            using (var dbContext = new ApplicationDbContext(options))
+            {
+                var sessionRepository = new SessionRepository(dbContext);
+                Assert.Equal(3, await sessionRepository.CountAsync());
+            }
+        }
     }
 }
