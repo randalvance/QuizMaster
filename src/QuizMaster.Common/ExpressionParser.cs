@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text;
 
 namespace QuizMaster.Common
 {
@@ -22,7 +23,59 @@ namespace QuizMaster.Common
             return cur;
         }
 
-        public static IEnumerable<LambdaExpression> GetFuncsFromExpression<T>(Expression<Func<T, object>> expression, bool includeIndexers = false)
+        public static object GetValueFromProperty(object obj, string propertyString)
+        {
+            if (!propertyString.Trim().Any())
+            {
+                return null;
+            }
+
+            var properties = propertyString.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim());
+
+            if (properties.Any(x => x.EndsWith("]")))
+            {
+                throw new NotSupportedException("Using collection and indexers in property path is not yet supported");
+            }
+
+            var cur = obj;
+
+            foreach(var property in properties)
+            {
+                var propInfo = cur.GetType().GetTypeInfo().GetProperty(property);
+
+                if (propInfo == null)
+                {
+                    throw new ArgumentException($"Invalid property {property} of type {cur.GetType().Name}");
+                }
+
+                cur = propInfo.GetValue(cur);
+            }
+
+            return cur;
+        }
+
+        public static string GetPropertyStringFromExpression<T>(Expression<Func<T, object>> expression)
+        {
+            var lambdas = GetFuncsFromExpression(expression);
+
+            var propertyNames = new List<string>();
+
+            foreach(var lambda in lambdas)
+            {
+                var memberExpression = (MemberExpression)(lambda.Body);
+
+                propertyNames.Add(memberExpression.Member.Name);
+            }
+
+            return string.Join(".", propertyNames.ToArray());
+        }
+
+        public static IEnumerable<LambdaExpression> GetFuncsFromExpression<T>(Expression<Func<T, object>> expression,bool includeIndexers = false)
+        {
+            return GetFuncsFromExpression(expression, typeof(T), includeIndexers);
+        }
+
+        public static IEnumerable<LambdaExpression> GetFuncsFromExpression(LambdaExpression expression, Type type, bool includeIndexers = false)
         {
             MemberExpression exp = null;
 
@@ -50,7 +103,7 @@ namespace QuizMaster.Common
             while (exp != null)
             {
                 Type castType = exp.Expression.NodeType == ExpressionType.TypeAs ?
-                    ((UnaryExpression)exp.Expression).Type : typeof(T);
+                    ((UnaryExpression)exp.Expression).Type : type;
 
                 MemberExpression parentMemberExpression =  exp.Expression != null ? exp.Expression as MemberExpression : null;
                 MethodCallExpression indexerExpression = null;

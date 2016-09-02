@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QuizMaster.Models;
 using System.Threading.Tasks;
+using QuizMaster.Common;
 
 namespace QuizMaster.Data.Repositories
 {
     public class ApplicationSettingRepository : BaseRepository<ApplicationSetting>
     {
-        public ApplicationSettingRepository(ApplicationDbContext dbContext) : base(dbContext)
+        public ApplicationSettingRepository(ApplicationDbContext dbContext, ISortManager sortApplier) : base(dbContext, sortApplier)
         {
         }
 

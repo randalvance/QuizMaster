@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using QuizMaster.Common.Models;
+using QuizMaster.Data.Core;
 
 namespace QuizMaster.Models.CoreViewModels
 {
@@ -12,13 +10,13 @@ namespace QuizMaster.Models.CoreViewModels
         {
             get
             {
-                if (PageAndSorting.ItemsPerPage == 0)
+                if (PagingAndSorting.ItemsPerPage == 0)
                 {
                     return 1;
                 }
 
-                int pages = TotalItems / PageAndSorting.ItemsPerPage;
-                int extra = TotalItems % PageAndSorting.ItemsPerPage;
+                int pages = TotalItems / PagingAndSorting.ItemsPerPage;
+                int extra = TotalItems % PagingAndSorting.ItemsPerPage;
 
                 if (extra > 0)
                 {
@@ -29,6 +27,6 @@ namespace QuizMaster.Models.CoreViewModels
             }
         }
 
-        public PageAndSortingViewModel PageAndSorting { get; set; } = new PageAndSortingViewModel();
+        public PagingAndSortingOptions PagingAndSorting { get; set; } = new PagingAndSortingOptions();
     }
 }

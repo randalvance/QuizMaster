@@ -20,7 +20,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddDefaultTokenProviders();
         }
 
-        public static void AddApplicationServices(this IServiceCollection services)
+        public static void AddApplicationDataServices(this IServiceCollection services)
         {
             services.AddScoped<QuizService>();
             services.AddScoped<ApplicationSettingService>();

@@ -1,4 +1,6 @@
-﻿using QuizMaster.Data;
+﻿using Moq;
+using QuizMaster.Common;
+using QuizMaster.Data;
 using QuizMaster.Data.Repositories;
 using QuizMaster.Models;
 using System;
@@ -32,6 +34,8 @@ namespace QuizMaster.Tests.Data
         [Fact]
         public async void ShouldRetrieveSingleEntityById()
         {
+           var mockSortManager = GetSortManager<Session>();
+
             var options = CreateNewOptions();
             Session sessionToFind;
 
@@ -47,7 +51,7 @@ namespace QuizMaster.Tests.Data
 
             using (var dbContext = new ApplicationDbContext(options))
             {
-                var repository = new SessionRepository(dbContext);
+                var repository = new SessionRepository(dbContext, mockSortManager.Object);
                 var foundSession = await repository.RetrieveAsync(sessionToFind.SessionId);
 
                 Assert.NotEqual(foundSession.SessionId, Guid.Empty);
@@ -58,11 +62,12 @@ namespace QuizMaster.Tests.Data
         [Fact]
         public async void ShouldAddANewEntity()
         {
+            var mockSortManager = GetSortManager<Session>();
             var options = CreateNewOptions();
 
             using (var dbContext = new ApplicationDbContext(options))
             {
-                var repository = new SessionRepository(dbContext);
+                var repository = new SessionRepository(dbContext, mockSortManager.Object);
                 var session = new Session();
 
                 await repository.AddAsync(session);
@@ -78,6 +83,7 @@ namespace QuizMaster.Tests.Data
         [Fact]
         public async void ShouldRemoveEntity()
         {
+            var mockSortManager = GetSortManager<Session>();
             var options = CreateNewOptions();
             Session sessionToFind;
 
@@ -93,7 +99,7 @@ namespace QuizMaster.Tests.Data
 
             using (var dbContext = new ApplicationDbContext(options))
             {
-                var repository = new SessionRepository(dbContext);
+                var repository = new SessionRepository(dbContext, mockSortManager.Object);
                 var foundSession = await repository.RetrieveAsync(sessionToFind.SessionId);
 
                 await repository.RemoveAsync(foundSession);
@@ -102,7 +108,7 @@ namespace QuizMaster.Tests.Data
 
             using (var dbContext = new ApplicationDbContext(options))
             {
-                var repository = new SessionRepository(dbContext);
+                var repository = new SessionRepository(dbContext, mockSortManager.Object);
                 var sessions = repository.RetrieveAll().ToList();
 
                 Assert.Equal(2, sessions.Count);
@@ -112,6 +118,7 @@ namespace QuizMaster.Tests.Data
         [Fact]
         public async void ShouldUpdateEntity()
         {
+            var mockSortManager = GetSortManager<Quiz>();
             var options = CreateNewOptions();
             Quiz quizToUpdate;
 
@@ -126,7 +133,7 @@ namespace QuizMaster.Tests.Data
 
             using (var dbContext = new ApplicationDbContext(options))
             {
-                var repository = new QuizRepository(dbContext);
+                var repository = new QuizRepository(dbContext, mockSortManager.Object);
                 quizToUpdate = await repository.RetrieveAsync(quizToUpdate.QuizId);
                 quizToUpdate.Title = "Updated Title";
                 quizToUpdate.Instructions = "Updated Instructions";
@@ -136,7 +143,7 @@ namespace QuizMaster.Tests.Data
 
             using (var dbContext = new ApplicationDbContext(options))
             {
-                var repository = new QuizRepository(dbContext);
+                var repository = new QuizRepository(dbContext, mockSortManager.Object);
                 var updatedQuiz = await repository.RetrieveAsync(quizToUpdate.QuizId);
 
                 Assert.Equal("Updated Title", updatedQuiz.Title);
@@ -147,6 +154,7 @@ namespace QuizMaster.Tests.Data
         [Fact]
         public async void ShouldReturnCorrectCount()
         {
+            var mockSortManager = GetSortManager<Session>();
             var options = CreateNewOptions();
 
             using (var dbContext = new ApplicationDbContext(options))
@@ -159,9 +167,16 @@ namespace QuizMaster.Tests.Data
 
             using (var dbContext = new ApplicationDbContext(options))
             {
-                var sessionRepository = new SessionRepository(dbContext);
+                var sessionRepository = new SessionRepository(dbContext, mockSortManager.Object);
                 Assert.Equal(3, await sessionRepository.CountAsync());
             }
+        }
+
+        private static Mock<ISortManager> GetSortManager<T>() where T : class
+        {
+            var mockSortManager = new Mock<ISortManager>();
+            mockSortManager.Setup(x => x.ApplySorting<T>(It.IsAny<string>(), It.IsAny<IQueryable<T>>()));
+            return mockSortManager;
         }
     }
 }

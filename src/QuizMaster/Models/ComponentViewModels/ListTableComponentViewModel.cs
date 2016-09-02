@@ -54,5 +54,6 @@ namespace QuizMaster.Models.ComponentViewModels
         public string Format { get; set; }
         public Expression<Func<object, object>> PropertyAccessor { get; set; }
         public bool IsDetailLinkColumn { get; set; }
+        public bool Sortable { get; set; } = false;
     }
 }

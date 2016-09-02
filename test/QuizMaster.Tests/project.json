@@ -7,7 +7,8 @@
     "QuizMaster.Data": "1.0.0-*",
     "QuizMaster.Common": "1.0.0-*",
     "Microsoft.EntityFrameworkCore.InMemory": "1.0.0",
-    "dotnet-test-xunit": "2.2.0-preview2-build1029"
+    "dotnet-test-xunit": "2.2.0-preview2-build1029",
+    "Moq": "4.6.38-alpha"
   },
   "frameworks": {
     "netcoreapp1.0": {

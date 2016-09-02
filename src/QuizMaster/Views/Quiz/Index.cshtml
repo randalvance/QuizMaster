@@ -21,11 +21,11 @@
     {
         Columns = new List<ListTableColumnInfo>
         {
-            new ListTableColumnInfo("Code", q => (q as Quiz).Code, true),
-            new ListTableColumnInfo("Title", q => (q as Quiz).Title),
+            new ListTableColumnInfo("Code", q => (q as Quiz).Code, true) { Sortable = true },
+            new ListTableColumnInfo("Title", q => (q as Quiz).Title) { Sortable = true },
             new ListTableColumnInfo("Group", q => (q as Quiz).QuizGroup.Name),
             new ListTableColumnInfo("Type", q => (q as Quiz).QuizType),
-            new ListTableColumnInfo("Question Type", q => (q as Quiz).QuizQuestions.Count),
+            new ListTableColumnInfo("Questions", q => (q as Quiz).QuizQuestions.Count),
             new ListTableColumnInfo("Create Date", q => (q as Quiz).CreateDate, format: "d"),
             new ListTableColumnInfo("Create Date", q => (q as Quiz).ModifyDate, format: "d")
         },

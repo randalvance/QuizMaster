@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using QuizMaster.Common.Models;
 using QuizMaster.Controllers.BaseControllers;
 using QuizMaster.Data.Core;
 using QuizMaster.Data.Repositories;
@@ -52,17 +53,13 @@ namespace QuizMaster.Controllers
             this.userManager = userManager;
         }
 
-        public async Task<IActionResult> Index([FromQuery]PageAndSortingViewModel pagingAndSorting)
+        public async Task<IActionResult> Index([FromQuery]PagingAndSortingOptions pagingAndSorting)
         {
             var viewModel = new QuizListViewModel()
             {
                 Quizes = await quizRepository.RetrieveAll(
-                    new ListOptions<Quiz>(
-                        x => x.QuizGroup,
-                        x => x.QuizQuestions)
-                    { Page = pagingAndSorting.Page, ItemsPerPage = pagingAndSorting.ItemsPerPage })
-                     .OrderByDescending(x => x.ModifyDate).ToListAsync(),
-                PageAndSorting = pagingAndSorting,
+                    new ListOptions<Quiz>(pagingAndSorting, x => x.QuizGroup, x => x.QuizQuestions)).ToListAsync(),
+                PagingAndSorting = pagingAndSorting,
                 TotalItems = await quizRepository.CountAsync()
             };
 
@@ -73,8 +70,7 @@ namespace QuizMaster.Controllers
 
         public async Task<IActionResult> Add(Guid groupId, int questionCount = 10, string returnUrl = "")
         {
-            var quizGroup = await quizGroupRepository.RetrieveAsync(groupId, new ListOptions<QuizGroup>(
-                        x => x.Quizes));
+            var quizGroup = await quizGroupRepository.RetrieveAsync(groupId, new ListOptions<QuizGroup>(x => x.Quizes));
             var quizCount = quizGroup?.Quizes.Count;
             var firstQuiz = quizGroup?.Quizes.FirstOrDefault();
             var quizInstructions = firstQuiz != null ? firstQuiz.Instructions : string.Empty;
