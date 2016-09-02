@@ -9,6 +9,7 @@ namespace QuizMaster.Models.ComponentViewModels
     public abstract class ListTableComponentViewModel
     {
         public string Controller { get; set; }
+        public string ListAction { get; set; } = "Index";
         public string DetailAction { get; set; } = "Detail";
         public string EditAction { get; set; } = "Edit";
         public string AddAction { get; set; } = "Edit";

@@ -45,6 +45,11 @@ namespace QuizMaster.Common
 
         public List<SortColumnInfo> ParseSortString(string sortString)
         {
+            if (string.IsNullOrWhiteSpace(sortString))
+            {
+                return new List<SortColumnInfo>();
+            }
+
             var sortColumnInfos = new List<SortColumnInfo>();
             var sortColumnsSplits = sortString.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
 

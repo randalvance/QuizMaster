@@ -32,7 +32,10 @@
                     {
                         <span class="glyphicon @(columnInfo.SortingOrder == SortingOrder.Ascending ? "glyphicon-arrow-up" : "glyphicon-arrow-down")"></span>
                     }
-                    <a href="#">@column.HeaderText</a>
+                    <a asp-controller="@Model.Controller" asp-action="@Model.ListAction" 
+                       asp-route-page="@Model.PagedViewModel.PagingAndSorting.Page"
+                       asp-route-itemsperpage="@Model.PagedViewModel.PagingAndSorting.ItemsPerPage"
+                       asp-route-sortexpression="@sortExpression">@column.HeaderText</a>
                     </th>
                 }
             }

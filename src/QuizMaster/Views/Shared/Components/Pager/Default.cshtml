@@ -2,22 +2,30 @@
 @{
     var controller = ViewContext.RouteData.Values["controller"];
     var action = ViewContext.RouteData.Values["action"];
+    var sortExpression = Model.PagingAndSorting.SortExpression;
 }
 <div class="container-fluid">
     <div class="row">
         <ul class="pagination">
             <li class="@(Model.PagingAndSorting.Page == 1 ? "disabled" : "")">
-                <a asp-controller="@controller" asp-action="@action">
+                <a asp-controller="@controller" asp-action="@action" 
+                   asp-route-sortexpression="@sortExpression">
                     <span aria-hidden="true">&laquo;</span>
                 </a>
             </li>
-            <li class="@(Model.PagingAndSorting.Page == 1 ? "active" : "")"><a asp-controller="@controller" asp-action="@action">1</a></li>
+            <li class="@(Model.PagingAndSorting.Page == 1 ? "active" : "")">
+                <a asp-controller="@controller" asp-action="@action"
+                   asp-route-sortexpression="@sortExpression">1</a></li>
             @for (int i = 2; i <= Model.NumberOfPages; i++)
             {
-                <li class="@(Model.PagingAndSorting.Page == i ? "active" : "")"><a asp-controller="@controller" asp-action="@action" asp-route-page="@i">@i</a></li>
+                <li class="@(Model.PagingAndSorting.Page == i ? "active" : "")">
+                    <a asp-controller="@controller" asp-action="@action" 
+                        asp-route-page="@i"
+                        asp-route-sortexpression="@sortExpression">@i</a></li>
             }
             <li class="@(Model.PagingAndSorting.Page == Model.NumberOfPages ? "disabled" : "")">
-                <a asp-controller="@controller" asp-action="@action" asp-route-page="@Model.NumberOfPages">
+                <a asp-controller="@controller" asp-action="@action" asp-route-page="@Model.NumberOfPages"
+                   asp-route-sortexpression="@sortExpression">
                     <span aria-hidden="true">&raquo;</span>
                 </a>
             </li>
