@@ -8,5 +8,6 @@ namespace QuizMaster.Common
     {
         IQueryable<T> ApplySorting<T>(string sortString, IQueryable<T> itemsToSort);
         List<SortColumnInfo> ParseSortString(string sortString);
+        string BuildSortString(List<SortColumnInfo> columnInfos);
     }
 }

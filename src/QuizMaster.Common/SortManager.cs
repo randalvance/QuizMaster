@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text;
 
 namespace QuizMaster.Common
 {
@@ -77,6 +78,18 @@ namespace QuizMaster.Common
             }
 
             return sortColumnInfos;
+        }
+
+        public string BuildSortString(List<SortColumnInfo> columnInfos)
+        {
+            var sortStringBuilder = new StringBuilder();
+
+            foreach(var columnInfo in columnInfos)
+            {
+                sortStringBuilder.Append($"{columnInfo.Column}-{(columnInfo.SortingOrder == SortingOrder.Ascending ? "ASC" : "DESC")},");
+            }
+
+            return sortStringBuilder.ToString().TrimEnd(',');
         }
     }
 }

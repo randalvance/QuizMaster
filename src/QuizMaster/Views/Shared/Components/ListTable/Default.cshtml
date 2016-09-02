@@ -2,6 +2,7 @@
 @using QuizMaster.Common
 @using QuizMaster.Common.Extensions
 @using QuizMaster.Common.Models
+@using System.Net
 @inject ISortManager sortManager
 
 @await Component.InvokeAsync("Pager", new { viewModel = Model.PagedViewModel })
@@ -11,6 +12,26 @@
 @{ 
     string sortExpression = Model.PagedViewModel.PagingAndSorting.SortExpression;
     var columnInfos = sortManager.ParseSortString(sortExpression);
+
+    Func<List<SortColumnInfo>, string, string> GetNewSortExpression = (columns, columnName) =>
+    {
+        var columnInfoClone = new List<SortColumnInfo>(columns);
+        var columnInfo = columns.SingleOrDefault(c => c.Column == columnName);
+
+        if (columnInfo == null)
+        {
+            columnInfoClone.Add(new SortColumnInfo(columnName, SortingOrder.Ascending));
+        }
+        else if (columnInfo.SortingOrder == SortingOrder.Ascending)
+        {
+            columnInfo.SortingOrder = SortingOrder.Descending;
+        }
+        else
+        {
+            columnInfoClone.Remove(columnInfo);
+        }
+        return sortManager.BuildSortString(columnInfoClone);
+    };
 }
 
 <table class="table table-responsive table-bordered list-table">
@@ -35,7 +56,7 @@
                     <a asp-controller="@Model.Controller" asp-action="@Model.ListAction" 
                        asp-route-page="@Model.PagedViewModel.PagingAndSorting.Page"
                        asp-route-itemsperpage="@Model.PagedViewModel.PagingAndSorting.ItemsPerPage"
-                       asp-route-sortexpression="@sortExpression">@column.HeaderText</a>
+                       asp-route-sortexpression="@GetNewSortExpression(columnInfos, columnName)">@column.HeaderText</a>
                     </th>
                 }
             }
