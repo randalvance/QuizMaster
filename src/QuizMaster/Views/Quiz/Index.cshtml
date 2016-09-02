@@ -29,6 +29,11 @@
             new ListTableColumnInfo<Quiz>("Create Date", q => q.CreateDate, format: "d"),
             new ListTableColumnInfo<Quiz>("Create Date", q => q.ModifyDate, format: "d")
         },
+        Actions = new List<ListTableAction>()
+        {
+            new ListTableAction<Quiz>() { Controller = "Session", Action = "GenerateSession",
+                IdExpression = q => q.QuizId, IconClass = "glyphicon glyphicon-book" }
+        },
         Controller = "Quiz",
         PagedViewModel = Model
     }

@@ -64,7 +64,7 @@ namespace QuizMaster.Controllers
             };
 
             EmbedToastOptions();
-
+            
             return View(viewModel);
         }
 

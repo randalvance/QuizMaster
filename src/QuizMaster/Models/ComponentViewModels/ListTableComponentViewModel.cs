@@ -14,10 +14,14 @@ namespace QuizMaster.Models.ComponentViewModels
         public string EditAction { get; set; } = "Edit";
         public string AddAction { get; set; } = "Edit";
         public string DeleteAction { get; set; } = "Delete";
+        public bool ShowAddButton { get; set; } = true;
+        public bool ShowEditButton { get; set; } = true;
+        public bool ShowDeleteButton { get; set; } = true;
         public string IdProperty { get; set; }
         public PagedViewModelBase PagedViewModel { get; set; }
         public virtual List<object> Items { get; set; }
         public virtual List<ListTableColumnInfo> Columns { get; set; }
+        public virtual List<ListTableAction> Actions { get; set; } = new List<ListTableAction>();
         public Type ItemType { get; set; }
     }
 
@@ -65,6 +69,26 @@ namespace QuizMaster.Models.ComponentViewModels
             base(headerText, isDetailLinkColumn, format)
         {
             PropertyAccessor = propertyAccessor;
+        }
+    }
+
+    public class ListTableAction
+    {
+        public string Controller { get; set; }
+        public string Action { get; set; }
+        public string IconClass { get; set; }
+        public string Title { get; set; }
+        public LambdaExpression IdExpression { get; set; }
+    }
+
+    public class ListTableAction<T> : ListTableAction
+    {
+        public new Expression<Func<T, object>> IdExpression
+        {
+            set
+            {
+                base.IdExpression = value;
+            }
         }
     }
 }
