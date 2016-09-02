@@ -45,7 +45,7 @@
                 }
                 else
                 {
-                    var columnName = ExpressionParser.GetPropertyStringFromExpression(column.PropertyAccessor);
+                    var columnName = ExpressionParser.GetPropertyStringFromExpression(column.PropertyAccessor, Model.ItemType);
                     var columnInfo = columnInfos.SingleOrDefault(x => x.Column == columnName);
                     var isInSortList = columnInfo != null;
                     <th>
@@ -72,15 +72,15 @@
                     @if (column.IsDetailLinkColumn)
                     {
                         <td><a asp-controller="@Model.Controller" asp-action="@Model.DetailAction" asp-route-id="@item.GetPropertyValue(Model.IdProperty)">
-                            @item.GetPropertyValue(column.PropertyAccessor)</a></td>
+                            @item.GetPropertyValue(column.PropertyAccessor, Model.ItemType)</a></td>
                     }
                     else if (!string.IsNullOrWhiteSpace(column.Format))
                     {
-                        <td>@string.Format($"{{0:{column.Format}}}", item.GetPropertyValue(column.PropertyAccessor))</td>
+                        <td>@string.Format($"{{0:{column.Format}}}", item.GetPropertyValue(column.PropertyAccessor, Model.ItemType))</td>
                     }
                     else
                     {
-                        <td>@item.GetPropertyValue(column.PropertyAccessor)</td>
+                        <td>@item.GetPropertyValue(column.PropertyAccessor, Model.ItemType)</td>
                     }
                 }
                 <td>

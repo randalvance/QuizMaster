@@ -18,6 +18,7 @@ namespace QuizMaster.Models.ComponentViewModels
         public PagedViewModelBase PagedViewModel { get; set; }
         public virtual List<object> Items { get; set; }
         public virtual List<ListTableColumnInfo> Columns { get; set; }
+        public Type ItemType { get; set; }
     }
 
     public class ListTableComponentViewModel<T> : ListTableComponentViewModel where T : class
@@ -26,6 +27,7 @@ namespace QuizMaster.Models.ComponentViewModels
         {
             IdProperty = $"{typeof(T).Name}Id";
             Items = items;
+            ItemType = typeof(T);
         }
 
         public new List<T> Items
@@ -43,18 +45,26 @@ namespace QuizMaster.Models.ComponentViewModels
 
     public class ListTableColumnInfo
     {
-        public ListTableColumnInfo(string headerText, Expression<Func<object, object>> propertyAccessor, bool isDetailLinkColumn = false, string format = null)
+        public ListTableColumnInfo(string headerText, bool isDetailLinkColumn = false, string format = null)
         {
             HeaderText = headerText;
             IsDetailLinkColumn = isDetailLinkColumn;
-            PropertyAccessor = propertyAccessor;
             Format = format;
         }
 
         public string HeaderText { get; set; }
         public string Format { get; set; }
-        public Expression<Func<object, object>> PropertyAccessor { get; set; }
+        public LambdaExpression PropertyAccessor { get; set; }
         public bool IsDetailLinkColumn { get; set; }
         public bool Sortable { get; set; } = false;
+    }
+
+    public class ListTableColumnInfo<T> : ListTableColumnInfo
+    {
+        public ListTableColumnInfo(string headerText, Expression<Func<T, object>> propertyAccessor, bool isDetailLinkColumn = false, string format = null) : 
+            base(headerText, isDetailLinkColumn, format)
+        {
+            PropertyAccessor = propertyAccessor;
+        }
     }
 }

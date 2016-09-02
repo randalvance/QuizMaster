@@ -11,7 +11,13 @@ namespace QuizMaster.Common
     {
         public static object GetValueFromProperty<T>(T obj, Expression<Func<T, object>> expression)
         {
-            var delegates = GetFuncsFromExpression(expression, true);
+            var type = typeof(T);
+            return GetValueFromProperty(obj, expression, type);
+        }
+
+        public static object GetValueFromProperty(object obj, LambdaExpression expression, Type type)
+        {
+            var delegates = GetFuncsFromExpression(expression, type, true);
             var cur = obj as object;
 
             foreach (LambdaExpression exp in delegates)
@@ -54,13 +60,13 @@ namespace QuizMaster.Common
             return cur;
         }
 
-        public static string GetPropertyStringFromExpression<T>(Expression<Func<T, object>> expression)
+        public static string GetPropertyStringFromExpression(LambdaExpression expression, Type type)
         {
-            var lambdas = GetFuncsFromExpression(expression);
+            var lambdas = GetFuncsFromExpression(expression, type);
 
             var propertyNames = new List<string>();
 
-            foreach(var lambda in lambdas)
+            foreach (var lambda in lambdas)
             {
                 var memberExpression = (MemberExpression)(lambda.Body);
 
@@ -68,6 +74,12 @@ namespace QuizMaster.Common
             }
 
             return string.Join(".", propertyNames.ToArray());
+        }
+
+        public static string GetPropertyStringFromExpression<T>(Expression<Func<T, object>> expression)
+        {
+            var type = typeof(T);
+            return GetPropertyStringFromExpression(expression, type);
         }
 
         public static IEnumerable<LambdaExpression> GetFuncsFromExpression<T>(Expression<Func<T, object>> expression,bool includeIndexers = false)

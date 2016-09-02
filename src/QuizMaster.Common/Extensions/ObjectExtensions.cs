@@ -11,9 +11,9 @@ namespace QuizMaster.Common.Extensions
             return ExpressionParser.GetValueFromProperty(obj, propertyName);
         }
 
-        public static object GetPropertyValue(this object obj, Expression<Func<object, object>> propertyAccessor)
+        public static object GetPropertyValue(this object obj, LambdaExpression propertyAccessor, Type type)
         {
-            return ExpressionParser.GetValueFromProperty(obj, propertyAccessor);
+            return ExpressionParser.GetValueFromProperty(obj, propertyAccessor, type);
         }
     }
 }

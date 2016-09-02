@@ -21,13 +21,13 @@
     {
         Columns = new List<ListTableColumnInfo>
         {
-            new ListTableColumnInfo("Code", q => (q as Quiz).Code, true) { Sortable = true },
-            new ListTableColumnInfo("Title", q => (q as Quiz).Title) { Sortable = true },
-            new ListTableColumnInfo("Group", q => (q as Quiz).QuizGroup.Name),
-            new ListTableColumnInfo("Type", q => (q as Quiz).QuizType),
-            new ListTableColumnInfo("Questions", q => (q as Quiz).QuizQuestions.Count),
-            new ListTableColumnInfo("Create Date", q => (q as Quiz).CreateDate, format: "d"),
-            new ListTableColumnInfo("Create Date", q => (q as Quiz).ModifyDate, format: "d")
+            new ListTableColumnInfo<Quiz>("Code", q => q.Code, true) { Sortable = true },
+            new ListTableColumnInfo<Quiz>("Title", q => q.Title) { Sortable = true },
+            new ListTableColumnInfo<Quiz>("Group", q => q.QuizGroup.Name),
+            new ListTableColumnInfo<Quiz>("Type", q => q.QuizType),
+            new ListTableColumnInfo<Quiz>("Questions", q => q.QuizQuestions.Count),
+            new ListTableColumnInfo<Quiz>("Create Date", q => q.CreateDate, format: "d"),
+            new ListTableColumnInfo<Quiz>("Create Date", q => q.ModifyDate, format: "d")
         },
         Controller = "Quiz",
         PagedViewModel = Model
