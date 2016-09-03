@@ -101,6 +101,16 @@ namespace QuizMaster.Controllers
             Guid quizId;
             var user = await userManager.FindByNameAsync(User.Identity.Name);
 
+            if (fromTaker)
+            {
+                int requiredSessionsPerDay = await sessionSettings.RecommendedSessionCountPerDay;
+
+                if (requiredSessionsPerDay == numQuizTaken)
+                {
+                    return RedirectToAction("Index", "Session", new { userId = user.Id });
+                }
+            }
+
             if (id.HasValue)
             {
                 quizId = id.Value;
@@ -136,15 +146,6 @@ namespace QuizMaster.Controllers
             await sessionRepository.AddAsync(session);
             await sessionRepository.CommitAsync();
 
-            if (fromTaker)
-            {
-                int requiredSessionsPerDay = await sessionSettings.RecommendedSessionCountPerDay;
-
-                if (requiredSessionsPerDay == numQuizTaken)
-                {
-                    return RedirectToAction("Index", "Session", new { userId = user.Id });
-                }
-            }
             return RedirectToAction("TakeQuiz", "Quiz", new { sessionId = session.SessionId });
         }
         

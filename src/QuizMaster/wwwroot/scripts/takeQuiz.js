@@ -8,7 +8,6 @@ var TakeQuizUtilities = {
             var answerOptionsHidden = answerOptions.siblings('.answer-options-hidden');
 
             answerOptionsHidden.val(answerOptions.val());
-            alert(answerOptionsHidden.val());
         });
 
         $('.submit-answers-button').click(function (e) {
