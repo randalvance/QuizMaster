@@ -8,11 +8,12 @@ namespace QuizMaster.Models.ComponentViewModels
 {
     public abstract class ListTableComponentViewModel
     {
+        public string Id { get; set; }
         public string Controller { get; set; }
         public string ListAction { get; set; } = "Index";
         public string DetailAction { get; set; } = "Detail";
         public string EditAction { get; set; } = "Edit";
-        public string AddAction { get; set; } = "Edit";
+        public string AddAction { get; set; } = "Add";
         public string DeleteAction { get; set; } = "Delete";
         public bool ShowAddButton { get; set; } = true;
         public bool ShowEditButton { get; set; } = true;
@@ -27,11 +28,13 @@ namespace QuizMaster.Models.ComponentViewModels
 
     public class ListTableComponentViewModel<T> : ListTableComponentViewModel where T : class
     {
-        public ListTableComponentViewModel(List<T> items)
+        public ListTableComponentViewModel(PagedViewModelBase pagedViewModel, List<T> items)
         {
             IdProperty = $"{typeof(T).Name}Id";
+            Controller = typeof(T).Name;
             Items = items;
             ItemType = typeof(T);
+            PagedViewModel = pagedViewModel;
         }
 
         public new List<T> Items

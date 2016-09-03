@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using QuizMaster.Common.Models;
 using QuizMaster.Controllers.BaseControllers;
 using QuizMaster.Data.Constants;
 using QuizMaster.Data.Core;
@@ -26,11 +27,15 @@ namespace QuizMaster.Controllers
             this.quizGroupRepository = quizGroupRepository;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index([FromQuery]PagingAndSortingOptions pagingAndSorting)
         {
             var viewModel = new QuizGroupListViewModel()
             {
-                Groups = quizGroupRepository.RetrieveAll(new ListOptions<QuizGroup>(x => x.QuizCategory)).ToList()
+                Groups = quizGroupRepository.RetrieveAll(
+                    new ListOptions<QuizGroup>(pagingAndSorting,
+                    x => x.QuizCategory)).ToList(),
+                PagingAndSorting = pagingAndSorting,
+                TotalItems = await quizGroupRepository.CountAsync()
             };
 
             EmbedToastOptions();

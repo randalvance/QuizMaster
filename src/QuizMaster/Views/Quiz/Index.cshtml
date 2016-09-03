@@ -17,8 +17,9 @@
 
 @await Component.InvokeAsync("ListTable", new
 {
-    viewModel = new ListTableComponentViewModel<Quiz>(Model.Quizes)
+    viewModel = new ListTableComponentViewModel<Quiz>(Model, Model.Quizes)
     {
+        Id = "quizListTable",
         Columns = new List<ListTableColumnInfo>
         {
             new ListTableColumnInfo<Quiz>("Code", q => q.Code, true) { Sortable = true },
@@ -33,27 +34,8 @@
         {
             new ListTableAction<Quiz>() { Controller = "Session", Action = "GenerateSession",
                 IdExpression = q => q.QuizId, IconClass = "glyphicon glyphicon-book" }
-        },
-        Controller = "Quiz",
-        PagedViewModel = Model
+        }
     }
-});
+})
     
-}
-
-@section scripts {
-    <script type="text/javascript">
-        $(function () {
-
-            $('.delete-button').click(function (e) {
-                var self = $(this);
-                var form = self.parent('form');
-                if (confirm("Are you sure you want to delete?")) {
-                    form.submit();
-                }
-
-                e.preventDefault();
-            });
-        });
-    </script>
 }

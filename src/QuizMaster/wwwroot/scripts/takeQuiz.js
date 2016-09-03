@@ -12,7 +12,7 @@ var TakeQuizUtilities = {
             duration: 800,
             easing: 'easeInOut',
             from: { color: '#f00' },
-            to: { color: '#0f0' },
+            to: { color: '#32C700' },
             step: function (state, circle, attachment) {
                 circle.path.setAttribute('stroke', state.color);
             }
@@ -32,7 +32,7 @@ var TakeQuizUtilities = {
             duration: 800,
             easing: 'easeInOut',
             from: { color: '#f00' },
-            to: { color: '#0f0' },
+            to: { color: '#32C700' },
             step: function (state, circle, attachment) {
                 circle.path.setAttribute('stroke', state.color);
             }
