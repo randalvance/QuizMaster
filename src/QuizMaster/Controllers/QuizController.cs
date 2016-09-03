@@ -3,12 +3,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using QuizMaster.Common.Models;
 using QuizMaster.Controllers.BaseControllers;
 using QuizMaster.Data.Core;
 using QuizMaster.Data.Repositories;
 using QuizMaster.Data.Services;
 using QuizMaster.Data.Settings;
 using QuizMaster.Models;
+using QuizMaster.Models.CoreViewModels;
 using QuizMaster.Models.QuizViewModels;
 using QuizMaster.Models.SessionViewModels;
 using System;
@@ -51,25 +53,24 @@ namespace QuizMaster.Controllers
             this.userManager = userManager;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index([FromQuery]PagingAndSortingOptions pagingAndSorting)
         {
             var viewModel = new QuizListViewModel()
             {
-                Quizes = await quizRepository.RetrieveAll(new ListOptions<Quiz>(
-                        x => x.QuizGroup,
-                        x => x.QuizQuestions))
-                        .OrderByDescending(x => x.ModifyDate).ToListAsync()
+                Quizes = await quizRepository.RetrieveAll(
+                    new ListOptions<Quiz>(pagingAndSorting, x => x.QuizGroup, x => x.QuizQuestions)).ToListAsync(),
+                PagingAndSorting = pagingAndSorting,
+                TotalItems = await quizRepository.CountAsync()
             };
 
             EmbedToastOptions();
-
+            
             return View(viewModel);
         }
 
         public async Task<IActionResult> Add(Guid groupId, int questionCount = 10, string returnUrl = "")
         {
-            var quizGroup = await quizGroupRepository.RetrieveAsync(groupId, new ListOptions<QuizGroup>(
-                        x => x.Quizes));
+            var quizGroup = await quizGroupRepository.RetrieveAsync(groupId, new ListOptions<QuizGroup>(x => x.Quizes));
             var quizCount = quizGroup?.Quizes.Count;
             var firstQuiz = quizGroup?.Quizes.FirstOrDefault();
             var quizInstructions = firstQuiz != null ? firstQuiz.Instructions : string.Empty;

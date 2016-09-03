@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using QuizMaster.Controllers.BaseControllers;
 using QuizMaster.Data.Repositories;
 using QuizMaster.Models.ApplicationSettingViewModels;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace QuizMaster.Controllers
 {
-    public class ApplicationSettingController : Controller
+    public class ApplicationSettingController : ToastController
     {
         private ApplicationSettingRepository applicationSettingRepository;
 
@@ -39,6 +40,10 @@ namespace QuizMaster.Controllers
             }
 
             await applicationSettingRepository.CommitAsync();
+
+            ToastSuccess("Application Settings Updated.");
+
+            EmbedToastOptions();
 
             return View(viewModel);
         }

@@ -4,7 +4,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
-using QuizMaster.Data.Extensions;
 using QuizMaster.Models;
 using System;
 using System.IO;
@@ -37,13 +36,13 @@ namespace QuizMaster
 
             services.Configure<Options.IdentityOptions>(Configuration.GetSection("Identity"));
 
-
+            services.AddApplicationDependencies();
             services.AddDataRelatedServices(Configuration.GetConnectionString("DefaultConnection"),
                 services.AddIdentity<ApplicationUser, ApplicationRole>());
-
-            services.AddApplicationServices();
+            services.AddApplicationDataServices();
             services.AddApplicationRepositories();
             services.AddApplicationSettings();
+
             services.AddSession();
             services.AddMvc().AddJsonOptions(options =>
             {

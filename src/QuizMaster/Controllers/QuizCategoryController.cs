@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using QuizMaster.Common.Models;
 using QuizMaster.Controllers.BaseControllers;
 using QuizMaster.Data.Constants;
+using QuizMaster.Data.Core;
 using QuizMaster.Data.Repositories;
 using QuizMaster.Models;
 using QuizMaster.Models.QuizViewModels;
@@ -21,11 +23,14 @@ namespace QuizMaster.Controllers
             this.quizCategoryRepository = quizCategoryRepository;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index([FromQuery]PagingAndSortingOptions pagingAndSorting)
         {
             var viewModel = new QuizCategoryListViewModel()
             {
-                Categories = quizCategoryRepository.RetrieveAll().ToList()
+                Categories = quizCategoryRepository.RetrieveAll(
+                    new ListOptions<QuizCategory>(pagingAndSorting)).ToList(),
+                PagingAndSorting = pagingAndSorting,
+                TotalItems = await quizCategoryRepository.CountAsync()
             };
 
             EmbedToastOptions();

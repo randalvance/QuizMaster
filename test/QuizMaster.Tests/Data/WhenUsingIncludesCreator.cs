@@ -18,30 +18,6 @@ namespace QuizMaster.Tests.Data
         }
 
         [Fact]
-        public void ShouldProperlySplitPropertiesAndReturnTheCorrectCountOfFuncs()
-        {
-            var resultsWithCollection1 = sessionIncludesCreator.GetFuncsFromExpression(s => s.QuizSessions);
-            var resultsWithCollection2 = sessionIncludesCreator.GetFuncsFromExpression(s => s.QuizSessions[0].Quiz);
-            var resultsWithCollection3 = sessionIncludesCreator.GetFuncsFromExpression(s => s.SessionQuestions[0].Question.Answers[0].Question);
-
-            var results1 = sessionIncludesCreator.GetFuncsFromExpression(s => s.ApplicationUser);
-            var results2 = sessionIncludesCreator.GetFuncsFromExpression(s => s.ApplicationUser.Logins);
-            var results3 = sessionIncludesCreator.GetFuncsFromExpression(s => s.ApplicationUser.SecurityStamp.Length);
-
-            Assert.Equal(1, results1.Count());
-            Assert.Equal(2, results2.Count());
-            Assert.Equal(3, results3.Count());
-
-            Assert.Equal(1, resultsWithCollection1.Count());
-            Assert.Equal(2, resultsWithCollection2.Count());
-            Assert.Equal(4, resultsWithCollection3.Count());
-
-            var dbContext = new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>());
-
-            sessionIncludesCreator.ApplyIncludes(new List<Session>().AsQueryable(), x => x.ApplicationUser);
-        }
-
-        [Fact]
         public void ShouldIncludeNavigationProperties()
         {
             var options = CreateNewOptions();
