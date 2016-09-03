@@ -19,6 +19,7 @@
       "type": "platform"
     },
     "Newtonsoft.Json": "9.0.1",
+    "QuizMaster.BBCode": "1.0.0-*",
     "QuizMaster.Data": "1.0.0-*",
     "QuizMaster.Models": "1.0.0-*",
     "QuizMaster.Options": "1.0.0-*"

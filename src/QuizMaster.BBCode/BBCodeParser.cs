@@ -3,11 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace QuizMaster.BBCode
 {
     /// <summary>
+    /// Based on (http://bbcode.codeplex.com/)
     /// This class is useful for creating a custom parser. You can customize which tags are available
     /// and how they are translated to HTML.
     /// In order to use this library, we require a link to http://codekicker.de/ from you. Licensed unter the Creative Commons Attribution 3.0 Licence: http://creativecommons.org/licenses/by/3.0/.

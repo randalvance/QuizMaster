@@ -1,4 +1,5 @@
 ﻿@model QuizPageViewModel
+@inject QuizMaster.BBCode.BBCodeParser BBCodeParser
 @{ 
     ViewBag.Title = "Quiz Time!";
     ViewBag.HeaderTitle = ViewBag.HideNext == null || !ViewBag.HideNext ? 
@@ -86,7 +87,7 @@
             <div class="question-wrapper">
                 <b>Question #@(q + 1)</b>
                 <div class="question">
-                    @question.QuestionText
+                    @Html.Raw(BBCodeParser.ToHtml(question.QuestionText))
                 </div>
                 <input type="hidden" asp-for="@Model.Quizes[i].Questions[q].QuestionText" />
                 <div class="answer">
