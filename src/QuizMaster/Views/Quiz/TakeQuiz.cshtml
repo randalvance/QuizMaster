@@ -6,7 +6,7 @@
     Layout = "_LayoutContentpage";
 }
 
-<form asp-controller="Quiz" asp-action="TakeQuiz" asp-route-sessionId="@Model.SessionId" method="post">
+<form id="main-form" asp-controller="Quiz" asp-action="TakeQuiz" asp-route-sessionId="@Model.SessionId" method="post">
 
 <div class="panel-group">
 
@@ -105,14 +105,16 @@
                             }
                             else
                             {
-                                <select class="form-control  
+                                <select class="form-control answer-options 
                                         @((!Model.InitialLoad && !Model.Quizes[i].IncorrectAnswers.Contains(answer.AnswerId)) ? "correct-answer" : "") 
                                         @((!Model.InitialLoad && Model.Quizes[i].IncorrectAnswers.Contains(answer.AnswerId) ? "incorrect-answer": ""))" 
                                         asp-for="@Model.Quizes[i].Questions[q].Answers[a].UserAnswer"
                                         asp-items="@Model.Quizes[i].QuizChoices">
                                     <option></option>
                                 </select>
+                                <input type="hidden" class="answer-options-hidden" asp-for="@Model.Quizes[i].Questions[q].Answers[a].UserAnswer" />
                             }
+                            <span asp-validation-for="@Model.Quizes[i].Questions[q].Answers[a].UserAnswer" class="text-danger"></span>
                         </div>
                                 
                         <input type="hidden" asp-for="@Model.Quizes[i].Questions[q].Answers[a].AnswerId" />
@@ -126,7 +128,7 @@
             
         @if (Model.InitialLoad || Model.Quizes[i].IncorrectAnswers.Any())
         {
-            <input type="submit" class="btn btn-success" value="@(Model.IsRetry ? "Resubmit Answers" : "Submit Answers")" />
+            <input type="submit" class="submit-answers-button btn btn-primary" value="@(Model.IsRetry ? "Resubmit Answers" : "Submit Answers")" />
         }
 
         @if (!Model.InitialLoad && Model.Quizes[i].IncorrectAnswers.Any())
@@ -148,8 +150,10 @@
 </form>
 
 @section scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
     <script type="text/javascript" src="~/scripts/takeQuiz.js"></script>
     <script type="text/javascript">
+        TakeQuizUtilities.initializeControls();
         TakeQuizUtilities.showScores(@(!Model.InitialLoad ? "true" : "false"), @(Model.IsRetry ? "true" : "false"), @Model.CorrectAnswerCount, @Model.RetryAnswerCount);
     </script>
 }
