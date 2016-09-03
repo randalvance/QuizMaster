@@ -25,7 +25,7 @@ textarea {
 .question-wrapper {
     padding: 10px;
     margin-bottom: 10px;
-    background-color: #ffe7ff;
+    background-color: #efefef;
     color: #333;
 }
 
@@ -39,7 +39,7 @@ textarea {
 }
 
 .answer-item {
-    background-color: #d2d2ff;
+    background-color: #d2e4ff;
     padding: 10px;
 }
 
