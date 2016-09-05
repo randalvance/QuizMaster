@@ -49,9 +49,12 @@ namespace QuizMaster.Models.QuizViewModels
         [Required]
         public string QuestionText { get; set; }
         /// <summary>
-        /// Pipe separated answers
+        /// Colon separated answers
         /// </summary>
         [Required]
         public string AnswerData { get; set; }
+        // Colon separated choices
+        [Required]
+        public string ChoicesData { get; set; }
     }
 }

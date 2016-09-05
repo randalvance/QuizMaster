@@ -20,6 +20,7 @@ namespace QuizMaster.Models
 
         public List<Answer> Answers { get; set; }
         public List<QuizQuestion> QuizQuestions { get; set; }
+        public List<QuestionChoice> Choices { get; set; }
         public List<SessionQuestion> SessionQuestions { get; set; }
     }
 }

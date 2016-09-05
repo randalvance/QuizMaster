@@ -27,13 +27,13 @@
             new ListTableColumnInfo<Quiz>("Group", q => q.QuizGroup.Name),
             new ListTableColumnInfo<Quiz>("Type", q => q.QuizType),
             new ListTableColumnInfo<Quiz>("Questions", q => q.QuizQuestions.Count),
-            new ListTableColumnInfo<Quiz>("Create Date", q => q.CreateDate, format: "d"),
-            new ListTableColumnInfo<Quiz>("Create Date", q => q.ModifyDate, format: "d")
+            new ListTableColumnInfo<Quiz>("Create Date", q => q.CreateDate, format: "d") { Sortable = true },
+            new ListTableColumnInfo<Quiz>("Modify Date", q => q.ModifyDate, format: "d") { Sortable = true }
         },
         Actions = new List<ListTableAction>()
         {
             new ListTableAction<Quiz>() { Controller = "Session", Action = "GenerateSession",
-                IdExpression = q => q.QuizId, IconClass = "glyphicon glyphicon-book" }
+                IdExpression = q => q.QuizId, IconClass = "glyphicon glyphicon-book", Title = "Generate Session" }
         }
     }
 })

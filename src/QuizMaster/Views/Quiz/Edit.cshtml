@@ -75,7 +75,7 @@
         }
         else
         {
-            <select class="form-control" asp-for="@Model.QuizType"
+            <select class="form-control quiz-type-dropdown" asp-for="@Model.QuizType"
                     asp-items="@Model.Types">
             </select>
             <span asp-validation-for="@Model.QuizType" class="text-danger"></span>
@@ -109,6 +109,22 @@
                 <span asp-validation-for="@Model.Questions[i].QuestionText" class="text-danger"></span>
             }
         </div>
+
+        @if (Model.ReadOnly && Model.QuizType == QuizType.MultipleChoice)
+        {
+            <div class="form-group">
+                <label asp-for="@Model.Questions[i].ChoicesData">Choices @(i + 1):</label>
+                <div>@Model.Questions[i].ChoicesData</div>
+            </div>
+        }
+
+        <!-- Will be dynamically hidden by javascript -->
+        <div class="form-group choices-input-container">
+            <label asp-for="@Model.Questions[i].ChoicesData">Choices @(i + 1):</label>
+            <input asp-for="@Model.Questions[i].ChoicesData" class="form-control choices-text-box" />
+            <span asp-validation-for="@Model.Questions[i].ChoicesData" class="text-danger"></span>
+        </div>
+
         <div class="form-group">
             <label asp-for="@Model.Questions[i].AnswerData">Answer @(i + 1):</label>
             @if (Model.ReadOnly)
@@ -142,4 +158,8 @@
 
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script src="~/scripts/quizEdit.js"></script>
+    <script type="text/javascript">
+        QuizEditUtilities.initialize();
+    </script>
 }

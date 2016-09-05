@@ -35,6 +35,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static void AddApplicationRepositories(this IServiceCollection services)
         {
             services.AddScoped<ApplicationSettingRepository>();
+            services.AddScoped<QuestionChoiceRepository>();
             services.AddScoped<QuizRepository>();
             services.AddScoped<QuizCategoryRepository>();
             services.AddScoped<QuizGroupRepository>();
