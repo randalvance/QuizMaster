@@ -15,6 +15,11 @@
             new ListTableColumnInfo<QuizGroup>("Name", q => q.Name) { Sortable = true },
             new ListTableColumnInfo<QuizGroup>("Description", q => q.Description),
             new ListTableColumnInfo<QuizGroup>("Category", q => q.QuizCategory.Name)
+        },
+        Actions = new List<ListTableAction>()
+        {
+            new ListTableAction<Quiz>() { Controller = "Quiz", Action = "Add",
+                IdExpression = q => q.QuizGroupId, IconClass = "glyphicon glyphicon-plus", Title = "Add Question" }
         }
     }
 })

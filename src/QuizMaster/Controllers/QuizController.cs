@@ -24,6 +24,7 @@ namespace QuizMaster.Controllers
     [Authorize]
     public class QuizController : ToastController
     {
+        private readonly QuestionChoiceRepository questionChoiceRepository;
         private readonly QuizGroupRepository quizGroupRepository;
         private readonly QuizRepository quizRepository;
         private readonly QuizService quizService;
@@ -34,6 +35,7 @@ namespace QuizMaster.Controllers
         private readonly UserManager<ApplicationUser> userManager;
 
         public QuizController(
+            QuestionChoiceRepository questionChoiceRepository,
             QuizGroupRepository quizGroupRepository,
             QuizRepository quizRepository,
             QuizService quizService,
@@ -43,6 +45,7 @@ namespace QuizMaster.Controllers
             SessionRepository sessionRepository,
             UserManager<ApplicationUser> userManager)
         {
+            this.questionChoiceRepository = questionChoiceRepository;
             this.quizGroupRepository = quizGroupRepository;
             this.quizRepository = quizRepository;
             this.quizService = quizService;
@@ -68,9 +71,9 @@ namespace QuizMaster.Controllers
             return View(viewModel);
         }
 
-        public async Task<IActionResult> Add(Guid groupId, int questionCount = 10, string returnUrl = "")
+        public async Task<IActionResult> Add(Guid id, int questionCount = 10, string returnUrl = "")
         {
-            var quizGroup = await quizGroupRepository.RetrieveAsync(groupId, new ListOptions<QuizGroup>(x => x.Quizes));
+            var quizGroup = await quizGroupRepository.RetrieveAsync(id, new ListOptions<QuizGroup>(x => x.Quizes));
             var quizCount = quizGroup?.Quizes.Count;
             var firstQuiz = quizGroup?.Quizes.FirstOrDefault();
             var quizInstructions = firstQuiz != null ? firstQuiz.Instructions : string.Empty;
@@ -82,7 +85,7 @@ namespace QuizMaster.Controllers
                 Instructions = quizInstructions,
                 Questions = Enumerable.Range(0, questionCount).Select(i => new QuizEditQuestionViewModel() { }).ToList(), // Hardcoded to 10 questions for now
                 Groups = quizGroupRepository.RetrieveAll().ToList(),
-                QuizGroupId = groupId,
+                QuizGroupId = id,
                 QuizType = QuizType.FillInTheBlanks,
                 ReturnUrl = returnUrl
             };
@@ -102,7 +105,8 @@ namespace QuizMaster.Controllers
                 await quizRepository.RetrieveAsync(id, new ListOptions<Quiz>(
                     x => x.QuizGroup,
                     x => x.QuizChoices,
-                    x => x.QuizQuestions[0].Question.Answers));
+                    x => x.QuizQuestions[0].Question.Answers,
+                    x => x.QuizQuestions[0].Question.Choices));
 
             var viewModel = new QuizEditViewModel()
             {
@@ -115,8 +119,9 @@ namespace QuizMaster.Controllers
                 QuizGroupName = quiz.QuizGroup.Name,
                 QuizChoices = quiz.QuizChoices.Count > 0 ? quiz.QuizChoices.Select(c => c.Choice).Aggregate((x, y) => $"{x}:{y}") : string.Empty,
                 Questions = quiz.QuizQuestions.Select(x => 
-                    new QuizEditQuestionViewModel { QuestionText = x.Question.QuestionText, AnswerData = x.Question.Answers.Select(a => a.AnswerText)
-                        .Aggregate((a1, a2) => a1 + ":" + a2) }).ToList(),
+                    new QuizEditQuestionViewModel { QuestionText = x.Question.QuestionText,
+                        ChoicesData = x.Question.Choices.Select(c => c.Choice).Aggregate((c1, c2) => $"{c1}:{c2}"),
+                        AnswerData = x.Question.Answers.Select(a => a.AnswerText).Aggregate((a1, a2) => $"{a1}:{a2}") }).ToList(),
                 ReadOnly = true,
                 ReturnUrl = returnUrl
             };
@@ -129,7 +134,8 @@ namespace QuizMaster.Controllers
             var quiz =
                 await quizRepository.RetrieveAsync(id, new ListOptions<Quiz>(
                     x => x.QuizGroup,
-                    x => x.QuizQuestions[0].Question.Answers));
+                    x => x.QuizQuestions[0].Question.Answers,
+                    x => x.QuizQuestions[0].Question.Choices));
 
             var viewModel = new QuizEditViewModel()
             {
@@ -146,7 +152,9 @@ namespace QuizMaster.Controllers
                         QuestionId = x.QuestionId,
                         QuestionText = x.Question.QuestionText,
                         AnswerData = x.Question.Answers.Select(a => a.AnswerText)?
-                        .Aggregate((a1, a2) => a1 + ":" + a2)
+                        .Aggregate((a1, a2) => a1 + ":" + a2),
+                        ChoicesData = x.Question.Choices.Any() ? x.Question.Choices.OrderBy(c => c.DisplayOrder).Select(c => c.Choice)?
+                            .Aggregate((c1, c2) => c1 + ":" + c2) : string.Empty,
                     }).ToList(),
                 Groups = quizGroupRepository.RetrieveAll().ToList()
             };
@@ -244,7 +252,9 @@ namespace QuizMaster.Controllers
 
             var sessionAnswers = new List<SessionAnswer>();
             var session = await sessionRepository.RetrieveAsync(viewModel.SessionId);
-            var quizes = quizRepository.RetrieveAll(new ListOptions<Quiz>(x => x.QuizChoices)).AsQueryable();
+            var quizes = quizRepository.RetrieveAll(new ListOptions<Quiz>(
+                x => x.QuizChoices,
+                x => x.QuizQuestions[0].Question.Choices)).AsQueryable();
 
             viewModel.QuizItemCount = 0;
             viewModel.CorrectAnswerCount = session.CorrectAnswerCount;
@@ -265,7 +275,16 @@ namespace QuizMaster.Controllers
                 viewModel.QuizItemCount += quiz.QuizItemCount;
 
                 var quizObj = quizes.SingleOrDefault(x => x.QuizId == quiz.QuizId);
+
+                // Repopulate select lists
                 quiz.QuizChoices = new SelectList(quizObj.QuizChoices, "Choice", "Choice");
+
+                for(int i = 0; i < quiz.Questions.Count; i++)
+                {
+                    var question = quiz.Questions[i];
+                    var qqq = quizObj.QuizQuestions.Select(qq => qq.Question).SingleOrDefault(q => q.QuestionId == question.QuestionId);
+                    question.Choices = new SelectList(qqq.Choices, "Choice", "Choice");
+                }
             }
 
             if ((session.SessionStatus == SessionStatus.Ongoing || session.SessionStatus == SessionStatus.Skipped) && isPost)
@@ -404,6 +423,7 @@ namespace QuizMaster.Controllers
             return await sessionRepository.RetrieveAll(new ListOptions<Session>(
                 x => x.SessionAnswers,
                 x => x.QuizSessions[0].Quiz.QuizQuestions[0].Question.Answers[0].SessionAnswers,
+                x => x.QuizSessions[0].Quiz.QuizQuestions[0].Question.Choices,
                 x => x.QuizSessions[0].Quiz.QuizChoices,
                 x => x.SessionQuestions))
                 .Where(x => x.SessionId == sessionId)
@@ -425,7 +445,8 @@ namespace QuizMaster.Controllers
                 QuizChoices = !string.IsNullOrWhiteSpace(viewModel.QuizChoices) ? quizChoices : new List<QuizChoice>(),
             } : await quizRepository.RetrieveAsync(viewModel.QuizId, new ListOptions<Quiz>(
                     x => x.QuizChoices,
-                    x => x.QuizQuestions[0].Question.Answers));
+                    x => x.QuizQuestions[0].Question.Answers,
+                    x => x.QuizQuestions[0].Question.Choices));
         }
 
         private static QuizPageViewModel GetQuizPageViewModel(Session session)
@@ -451,7 +472,8 @@ namespace QuizMaster.Controllers
                                      UserAnswer = answer.SessionAnswers.FirstOrDefault(a => a.SessionId == session.SessionId) != null ?
                                         answer.SessionAnswers.OrderByDescending(x => x.AnswerChronology)
                                         .FirstOrDefault(a => a.SessionId == session.SessionId).UserAnswer : string.Empty
-                                 }).ToList()
+                                 }).ToList(),
+                                 Choices = new SelectList(qq.Question.Choices, "Choice", "Choice")
                              }).ToList(),
                              QuizChoices = new SelectList(q.QuizChoices, "Choice", "Choice")
                          }).ToList(),
@@ -523,17 +545,18 @@ namespace QuizMaster.Controllers
             foreach (var question in questions)
             {
                 var answers = await ParseAnswerDataAsync(question.AnswerData);
+                Question questionToUpdate = null;
 
                 if (isAdd)
                 {
-                    var newQuestion = new Question();
-                    newQuestion.QuestionText = question.QuestionText;
-                    newQuestion.Answers = answers;
-                    quiz.QuizQuestions.Add(new QuizQuestion() { Question = newQuestion });
+                    questionToUpdate = new Question();
+                    questionToUpdate.QuestionText = question.QuestionText;
+                    questionToUpdate.Answers = answers;
+                    quiz.QuizQuestions.Add(new QuizQuestion() { Question = questionToUpdate });
                 }
                 else
                 {
-                    var questionToUpdate = quiz.QuizQuestions.SingleOrDefault(q => q.QuestionId == question.QuestionId).Question;
+                    questionToUpdate = quiz.QuizQuestions.SingleOrDefault(q => q.QuestionId == question.QuestionId).Question;
 
                     if (questionToUpdate.QuestionText != question.QuestionText)
                     {
@@ -557,6 +580,11 @@ namespace QuizMaster.Controllers
                             questionToUpdate.Answers.Add(newAnswer);
                         }
                     }
+                }
+
+                if (quiz.QuizType == QuizType.MultipleChoice && !string.IsNullOrWhiteSpace(question.ChoicesData))
+                {
+                    ParseAndAddChoicesToQuestion(question, questionToUpdate);
                 }
             }
         }
@@ -637,6 +665,22 @@ namespace QuizMaster.Controllers
             foreach (var quiz in viewModel.Quizes)
             {
                 quiz.Questions = quiz.Questions.OrderBy(x => x.DisplayOrder).ToList();
+            }
+        }
+        
+        private async void ParseAndAddChoicesToQuestion(QuizEditQuestionViewModel questionVm, Question question)
+        {
+            if (question.Choices.Any())
+            {
+                await questionChoiceRepository.RemoveRangeAsync(question.Choices);
+            }
+
+            var choices = questionVm.ChoicesData.Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
+            
+            for(int i = 0; i < choices.Length; i++)
+            {
+                var questionChoice = new QuestionChoice() { Choice = choices[i], DisplayOrder = (i + 1) * 10 };
+                question.Choices.Add(questionChoice);
             }
         }
     }

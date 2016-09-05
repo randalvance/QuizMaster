@@ -97,12 +97,23 @@
 
                         <div class="form-group answer-item">
                             <label asp-for="@Model.Quizes[i].Questions[q].Answers[a].UserAnswer">Answer @(question.Answers.Count > 1 ? "#" + (a + 1) : "")</label>
-                            @if (!Model.Quizes[i].QuizChoices.Any())
+                            @if (!Model.Quizes[i].QuizChoices.Any() && !Model.Quizes[i].Questions[q].Choices.Any())
                             {
                             <input class="form-control"
                                     asp-is-correct="@(!Model.InitialLoad && !Model.Quizes[i].IncorrectAnswers.Contains(answer.AnswerId))"
                                     asp-is-incorrect="@(!Model.InitialLoad && Model.Quizes[i].IncorrectAnswers.Contains(answer.AnswerId))"
                                     asp-for="@Model.Quizes[i].Questions[q].Answers[a].UserAnswer" />
+                            }
+                            else if (Model.Quizes[i].Questions[q].Choices.Any())
+                            {
+                                <select class="form-control answer-options
+                                        @((!Model.InitialLoad && !Model.Quizes[i].IncorrectAnswers.Contains(answer.AnswerId)) ? "correct-answer" : "")
+                                        @((!Model.InitialLoad && Model.Quizes[i].IncorrectAnswers.Contains(answer.AnswerId) ? "incorrect-answer": ""))"
+                                        asp-for="@Model.Quizes[i].Questions[q].Answers[a].UserAnswer"
+                                        asp-items="@Model.Quizes[i].Questions[q].Choices">
+                                    <option></option>
+                                </select>
+                                <input type="hidden" class="answer-options-hidden" asp-for="@Model.Quizes[i].Questions[q].Answers[a].UserAnswer" />
                             }
                             else
                             {
