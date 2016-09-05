@@ -19,8 +19,8 @@ namespace QuizMaster.Models
         public string QuestionText { get; set; }
 
         public List<Answer> Answers { get; set; }
-        public List<QuizQuestion> QuizQuestions { get; set; }
-        public List<QuestionChoice> Choices { get; set; }
-        public List<SessionQuestion> SessionQuestions { get; set; }
+        public List<QuizQuestion> QuizQuestions { get; set; } = new List<QuizQuestion>();
+        public List<QuestionChoice> Choices { get; set; } = new List<QuestionChoice>();
+        public List<SessionQuestion> SessionQuestions { get; set; } = new List<SessionQuestion>();
     }
 }
