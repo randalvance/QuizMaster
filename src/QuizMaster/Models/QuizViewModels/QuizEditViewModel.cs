@@ -54,7 +54,6 @@ namespace QuizMaster.Models.QuizViewModels
         [Required]
         public string AnswerData { get; set; }
         // Colon separated choices
-        [Required]
         public string ChoicesData { get; set; }
     }
 }

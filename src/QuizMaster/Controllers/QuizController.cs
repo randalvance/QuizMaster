@@ -120,8 +120,8 @@ namespace QuizMaster.Controllers
                 QuizChoices = quiz.QuizChoices.Count > 0 ? quiz.QuizChoices.Select(c => c.Choice).Aggregate((x, y) => $"{x}:{y}") : string.Empty,
                 Questions = quiz.QuizQuestions.Select(x => 
                     new QuizEditQuestionViewModel { QuestionText = x.Question.QuestionText,
-                        ChoicesData = x.Question.Choices.Select(c => c.Choice).Aggregate((c1, c2) => $"{c1}:{c2}"),
-                        AnswerData = x.Question.Answers.Select(a => a.AnswerText).Aggregate((a1, a2) => $"{a1}:{a2}") }).ToList(),
+                        ChoicesData = x.Question.Choices.Any() ? x.Question.Choices.Select(c => c.Choice).Aggregate((c1, c2) => $"{c1}:{c2}") : string.Empty,
+                        AnswerData = x.Question.Answers.Any() ? x.Question.Answers.Select(a => a.AnswerText).Aggregate((a1, a2) => $"{a1}:{a2}") : string.Empty }).ToList(),
                 ReadOnly = true,
                 ReturnUrl = returnUrl
             };
