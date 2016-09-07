@@ -36,9 +36,7 @@ namespace QuizMaster.BBCode
                     new BBTag("quote", "<blockquote>", "</blockquote>"),
                     new BBTag("list", "<ul>", "</ul>"),
                     new BBTag("*", "<li>", "</li>", true, false),
-                    new BBTag("url", "<a href=\"${href}\">", "</a>", new BBAttribute("href", ""), new BBAttribute("href", "href")),
-                    new BBTag("red", "<span style=\"color: red\"><b>", "</b></span>")
-                });
+                    new BBTag("url", "<a href=\"${href}\">", "</a>", new BBAttribute("href", ""), new BBAttribute("href", "href"))
         }
 
         public static readonly string InvalidBBCodeTextChars = @"[]\";
