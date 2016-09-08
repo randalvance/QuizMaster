@@ -36,9 +36,12 @@ Task("Restore-Packages")
 Task("Npm")
     .IsDependentOn("Restore-Packages")
     .Does(() =>
-	{
-		Npm.WithLogLevel(NpmLogLevel.Silent).FromPath(rootDir.ToString()).Install(settings => settings.ForProduction());
-		Npm.WithLogLevel(NpmLogLevel.Silent).FromPath(rootDir.ToString()).RunScript("postinstall");
+	{		
+		Npm.WithLogLevel(NpmLogLevel.Silent).FromPath(rootDir.ToString())
+		.Install(settings => settings.Package("gulp").Globally())
+		.Install(settings => settings.Package("typings").Globally())
+		.Install(settings => settings.ForProduction())
+		.RunScript("postinstall");
 	});	
 
 Task("Build")
