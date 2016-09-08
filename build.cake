@@ -38,8 +38,6 @@ Task("Npm")
     .Does(() =>
 	{		
 		Npm.WithLogLevel(NpmLogLevel.Silent).FromPath(rootDir.ToString())
-		.Install(settings => settings.Package("gulp").Globally())
-		.Install(settings => settings.Package("typings").Globally())
 		.Install(settings => settings.ForProduction())
 		.RunScript("runtasks");
 	});
