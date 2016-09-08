@@ -1,0 +1,10 @@
+version: 1.0.{build}
+image: Visual Studio 2015
+build_script:
+- ps: ./build.ps1
+test: off
+artifacts:
+- path: artifacts
+  name: QuizMaster
+  type: WebDeployPackage
+deploy: off
