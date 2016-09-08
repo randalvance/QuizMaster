@@ -32,6 +32,6 @@
     "typings": "^1.0.4"
   },
   "scripts": {
-    "postinstall": "typings install"
+	"runtasks": "typings install && gulp all"
   }
 }

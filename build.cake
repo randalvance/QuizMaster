@@ -41,8 +41,9 @@ Task("Npm")
 		.Install(settings => settings.Package("gulp").Globally())
 		.Install(settings => settings.Package("typings").Globally())
 		.Install(settings => settings.ForProduction())
-		.RunScript("postinstall");
-	});	
+		.RunScript("runtasks");
+	});
+
 
 Task("Build")
     .IsDependentOn("Npm")
@@ -61,9 +62,16 @@ Task("Build")
 			settings.SetConfiguration(configuration));
 		}
 	});
+	
+Task("Run-Unit-Tests")
+    .IsDependentOn("Build")
+    .Does(() =>
+ {
+     DotNetCoreTest("./test/QuizMaster.Tests");
+ });
 
 Task("Publish")
-	.IsDependentOn("Build")
+	.IsDependentOn("Run-Unit-Tests")
 	.Does(() => 
 	{
 		DotNetCorePublish("./src/QuizMaster", new DotNetCorePublishSettings
