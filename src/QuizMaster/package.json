@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "name": "QuizMaster",
+  "name": "quiz-master",
   "private": true,
   "dependencies": {
     "@angular/common": "2.0.0-rc.5",
