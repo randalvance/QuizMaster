@@ -38,7 +38,7 @@ Task("Npm")
     .Does(() =>
 	{		
 		Npm.WithLogLevel(NpmLogLevel.Silent).FromPath(rootDir.ToString())
-		.Install(settings => settings.ForProduction())
+		.Install()
 		.RunScript("runtasks");
 	});
 
