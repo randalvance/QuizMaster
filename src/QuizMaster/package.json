@@ -12,7 +12,7 @@
     "@angular/platform-browser-dynamic": "2.0.0-rc.5",
     "@angular/router": "3.0.0-rc.1",
     "bootstrap": "^3.3.6",
-    "core-js": "^2.4.0",
+    "core-js": "^2.4.1",
     "jquery": "^3.1.0",
     "jquery-validation": "^1.15.1",
     "jquery-validation-unobtrusive": "^3.2.6",
@@ -30,5 +30,8 @@
     "run-sequence": "^1.2.2",
     "typescript": "^1.8.10",
     "typings": "^1.0.4"
+  },
+  "scripts": {
+    "postinstall": "typings install"
   }
 }

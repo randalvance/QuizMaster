@@ -251,6 +251,15 @@ paket-files/
 .idea/
 *.sln.iml
 
+# AppSettings
+appsettings.Development.json
+appsettings.Staging.json
+appsettings.Production.json
+
+# Tools
+tools/**/**
+!tools/packages.config
+
 /src/QuizMaster/typings
 /src/QuizMaster/wwwroot/lib
 /src/QuizMaster/wwwroot/app/**/*.js

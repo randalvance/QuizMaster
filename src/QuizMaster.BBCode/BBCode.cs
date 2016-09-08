@@ -27,7 +27,7 @@ namespace QuizMaster.BBCode
         static BBCodeParser GetParser()
         {
             return new BBCodeParser(ErrorMode.ErrorFree, null, new[]
-                {
+            {
                     new BBTag("b", "<b>", "</b>"),
                     new BBTag("i", "<span style=\"font-style:italic;\">", "</span>"),
                     new BBTag("u", "<span style=\"text-decoration:underline;\">", "</span>"),
@@ -37,6 +37,7 @@ namespace QuizMaster.BBCode
                     new BBTag("list", "<ul>", "</ul>"),
                     new BBTag("*", "<li>", "</li>", true, false),
                     new BBTag("url", "<a href=\"${href}\">", "</a>", new BBAttribute("href", ""), new BBAttribute("href", "href"))
+            });
         }
 
         public static readonly string InvalidBBCodeTextChars = @"[]\";
