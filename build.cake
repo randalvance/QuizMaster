@@ -15,6 +15,7 @@ var rootDir = Directory("./src/QuizMaster");
 var buildDir = rootDir + Directory("bin") + Directory(configuration);
 var nodeModulesDir = rootDir + Directory("node_modules");
 var typingsDir = rootDir + Directory("typings");
+var artifactsDir = Directory("./artifacts");
 
 //////////////////////////////////////////////////////////////////////
 // TASKS
@@ -78,6 +79,22 @@ Task("Publish")
 			Configuration = "Release",
 			OutputDirectory = "./artifacts/"
 		});
+		
+		var version = "Dev";
+		
+		if (AppVeyor.IsRunningOnAppVeyor)
+		{
+			version = AppVeyor.Environment.Build.Version;
+		}
+		
+		var outputFile = "./QuizMaster-" + version + ".zip";
+		
+		Zip(artifactsDir, outputFile, artifactsDir.Path.ToString() + "/**/*.*");
+		
+		if (AppVeyor.IsRunningOnAppVeyor)
+		{
+			AppVeyor.UploadArtifact(outputFile, new AppVeyorUploadArtifactsSettings { ArtifactType = AppVeyorUploadArtifactType.WebDeployPackage });
+		}
 	});
 
 //////////////////////////////////////////////////////////////////////
