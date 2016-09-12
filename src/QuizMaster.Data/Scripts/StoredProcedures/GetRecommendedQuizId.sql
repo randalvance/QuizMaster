@@ -19,7 +19,7 @@ BEGIN
 		   @TodayMonth = DATEPART(MONTH, GETDATE()),
 		   @TodayYear = DATEPART(YEAR, GETDATE())
 
-	SELECT TOP 1 QuizId
+	SELECT TOP 1 QuizId, Score
 	FROM
 	(
 		SELECT 1 AS TypeIndicator, Q.QuizId, Q.Title, Q.ModifyDate, GETDATE() AS DateCompleted, 0 AS Score FROM Quizes Q
@@ -34,6 +34,13 @@ BEGIN
 		LEFT JOIN dbo.Sessions S ON S.SessionId = QS.SessionId
 		WHERE S.SessionId IS NOT NULL AND S.ApplicationUserId = @UserId
 	) X
+	OUTER APPLY
+	(
+		SELECT TOP 1 S.CorrectAnswerCount AS MaxScore FROM QuizSessions QS
+		JOIN Sessions S ON S.SessionID = QS.SessionId
+		WHERE QS.QuizId = X.QuizId
+		ORDER BY S.CorrectAnswerCount DESC
+	) MaxScore(MaxScore)
 	-- Do not repeat if taken today
 	WHERE NOT EXISTS (
 		SELECT 1 FROM QuizSessions QS
@@ -52,6 +59,7 @@ BEGIN
 				@TodayYear = DATEPART(YEAR, S.DateCompleted)
 		))
 	)
+	AND ((TypeIndicator = 2 AND X.Score = MaxScore.MaxScore) OR TypeIndicator <> 2)
 	ORDER BY X.TypeIndicator, X.Score, X.DateCompleted, NEWID()
 END
 
